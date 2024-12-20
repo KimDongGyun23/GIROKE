@@ -19,6 +19,7 @@ type ButtonType = 'submit' | 'reset' | 'button' | undefined
 
 type ButtonProps = {
   size: keyof typeof sizeMap
+  width?: 'w-auto' | 'w-full' | 'grow'
   type?: ButtonType
   disabled?: boolean
   secondary?: boolean
@@ -28,6 +29,7 @@ type ButtonProps = {
 
 export const Button = ({
   size,
+  width = 'w-auto',
   classname,
   disabled = false,
   onClick,
@@ -36,12 +38,12 @@ export const Button = ({
   children,
 }: PropsWithChildren<ButtonProps>) => {
   const bgStyle = disabled || secondary ? 'bg-grey-3 text-grey-6' : 'bg-green-5 text-grey-1'
-  const buttonStyle = `${sizeMap[size].padding} ${sizeMap[size].font} ${bgStyle} ${classname}`
+  const buttonStyle = `${sizeMap[size].padding} ${sizeMap[size].font} ${bgStyle} ${width} ${classname}`
 
   return (
     <button
       type={type}
-      className={`w-auto shrink-0 rounded-xl text-grey-1 ${buttonStyle}`}
+      className={`shrink-0 rounded-xl text-grey-1 ${buttonStyle}`}
       disabled={disabled}
       onClick={onClick}
     >

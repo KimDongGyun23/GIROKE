@@ -41,7 +41,7 @@ export const BottomNav = () => {
         return (
           <Link key={name} to={url} className="flex-column-align gap-[10px]">
             <Component active={isActive} />
-            <span className={textStyle}>{name}</span>
+            <span className={`p-small font-medium ${textStyle}`}>{name}</span>
           </Link>
         )
       })}
