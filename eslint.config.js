@@ -1,30 +1,32 @@
-import eslint from '@eslint/js'
-import tseslint from '@typescript-eslint/eslint-plugin'
-import tseslintParser from '@typescript-eslint/parser'
+import pluginJs from '@eslint/js'
 import eslintConfigPrettier from 'eslint-config-prettier'
 import eslintPluginImport from 'eslint-plugin-import'
 import eslintPluginJsxA11y from 'eslint-plugin-jsx-a11y'
 import eslintPluginPrettier from 'eslint-plugin-prettier'
+import pluginReact from 'eslint-plugin-react'
 import eslintPluginSimpleImportSort from 'eslint-plugin-simple-import-sort'
 import eslintPluginTailwindcss from 'eslint-plugin-tailwindcss'
 import eslintPluginUnusedImports from 'eslint-plugin-unused-imports'
+import globals from 'globals'
+import tseslint from 'typescript-eslint'
 
+/** @type {import('eslint').Linter.Config[]} */
 export default [
-  eslint.configs.recommended,
+  pluginJs.configs.recommended,
+  ...tseslint.configs.recommended,
   eslintConfigPrettier,
   {
-    files: ['**/*.{js,jsx,ts,tsx}'],
+    files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'],
     languageOptions: {
-      parser: tseslintParser,
+      globals: { ...globals.browser },
       parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-        project: ['./tsconfig.json', './tsconfig.node.json'],
-        tsconfigRootDir: '.',
+        ecmaFeatures: {
+          jsx: true,
+        },
       },
     },
     plugins: {
-      '@typescript-eslint': tseslint,
+      react: pluginReact,
       prettier: eslintPluginPrettier,
       'unused-imports': eslintPluginUnusedImports,
       'simple-import-sort': eslintPluginSimpleImportSort,
@@ -33,6 +35,8 @@ export default [
       tailwindcss: eslintPluginTailwindcss,
     },
     rules: {
+      'react/react-in-jsx-scope': 'off',
+      'react/jsx-uses-react': 'error',
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': [
         'warn',
@@ -79,6 +83,9 @@ export default [
           paths: ['src'],
           extensions: ['.js', '.jsx', '.ts', '.tsx'],
         },
+        react: {
+          version: 'detect',
+        },
         typescript: {
           project: ['./tsconfig.json', './tsconfig.node.json'],
         },
@@ -88,6 +95,5 @@ export default [
         },
       },
     },
-    ignores: ['vite.config.ts'],
   },
 ]
