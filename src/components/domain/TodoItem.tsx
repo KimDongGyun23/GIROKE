@@ -8,10 +8,10 @@ type TodoItemProps = {
 export const TodoItem = ({ todo, isActive }: TodoItemProps) => {
   const activeStyle = isActive
     ? 'bg-green-4 border-none text-white'
-    : 'border border-grey-3 bg-white text-black'
+    : 'border border-grey-3 bg-white text-grey-7'
 
   return (
-    <div className={`flex-between-align p-small rounded-lg px-[14px] py-3 ${activeStyle}`}>
+    <div className={`flex-between-align p-medium rounded-lg px-[14px] py-3 ${activeStyle}`}>
       <p>{todo}</p>
       <div className="flex-align gap-2">
         <button>
