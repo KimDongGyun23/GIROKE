@@ -1,3 +1,10 @@
+import { useNavigate } from 'react-router-dom'
+
+import { useBoolean } from '@/hooks/useBoolean'
+import { useToggle } from '@/hooks/useToggle'
+
+import { Kebab } from '../view/Kebab'
+import { ModalDelete } from '../view/modal/Modal'
 import { SubHeaderWithIcon } from '../view/SubHeader'
 import { Tag } from '../view/Tag'
 
@@ -11,10 +18,22 @@ const detailData = {
 }
 
 export const TermDetail = () => {
+  const navigate = useNavigate()
   const { id, title, tag, createdAt, description } = detailData
+  const [kebabState, toggleKebabState] = useToggle(false)
+  const [modalState, openModal, closeModal] = useBoolean(false)
+
+  const kebabArr = [
+    { label: '수정', onClick: () => navigate(`/term/edit/${id}`) },
+    { label: '삭제', onClick: openModal },
+  ]
+
   return (
     <>
-      <SubHeaderWithIcon type="kebab" title="" onClickIcon={() => {}} />
+      <div>
+        <SubHeaderWithIcon type="kebab" title="" onClickIcon={toggleKebabState} />
+        {kebabState && <Kebab list={kebabArr} location="right-0 -translate-x-4" redIndex={1} />}
+      </div>
 
       <main className="flex-column scroll grow pt-5">
         <div>
@@ -32,6 +51,15 @@ export const TermDetail = () => {
           </div>
         </div>
       </main>
+
+      {modalState && (
+        <ModalDelete
+          isOpen={modalState}
+          closeModal={closeModal}
+          leftButtonOnClick={closeModal}
+          rightButtonOnClick={() => {}}
+        />
+      )}
     </>
   )
 }
