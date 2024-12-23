@@ -1,21 +1,32 @@
 import { useState } from 'react'
 import { FormProvider } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 
+import { useBoolean } from '@/hooks/useBoolean'
 import { useTermForm } from '@/hooks/useForms'
 import type { CSSubjectType } from '@/types/common'
 import { CS_SUBJECT } from '@/utils/constants'
 
 import { InputGroup } from '../view/inputGroup'
+import { ModalCreate } from '../view/modal/Modal'
 import { SubHeaderWithoutIcon } from '../view/SubHeader'
 import { Tag } from '../view/Tag'
 
 export const TermCreate = () => {
+  const navigate = useNavigate()
   const formMethod = useTermForm()
   const { handleSubmit, setValue } = formMethod
   const [selectedSubject, setSelectedSubject] = useState<CSSubjectType | null>(null)
+  const [modalState, openModal, closeModal] = useBoolean(false)
 
   const handleSubmitTermForm = () => {
     console.log('submit')
+    openModal()
+  }
+
+  const handleClickModalButton = () => {
+    closeModal()
+    navigate('/term/detail/0', { replace: true })
   }
 
   return (
@@ -63,6 +74,10 @@ export const TermCreate = () => {
           </form>
         </FormProvider>
       </main>
+
+      {modalState && (
+        <ModalCreate isOpen={modalState} closeModal={closeModal} onClick={handleClickModalButton} />
+      )}
     </>
   )
 }
