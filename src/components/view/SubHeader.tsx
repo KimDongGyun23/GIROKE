@@ -37,7 +37,7 @@ export const SubHeaderWithIcon = ({
   const handleClickCancel = onClickCancel || (() => navigate(-1))
 
   return (
-    <div className="flex-between-align relative p-4">
+    <div className="flex-between-align relative py-4">
       <button type="button" onClick={handleClickCancel}>
         <BackArrowIcon />
       </button>
