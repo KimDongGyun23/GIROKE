@@ -21,7 +21,7 @@ export const Label = ({
     <div className="flex-align gap-3">
       <p className="p-large font-medium text-grey-7">{children}</p>
       {errors && errors[section] && errors[section].message ? (
-        <p className="p-xsmall text-red-2">* {errors[section].message.toString()}</p>
+        <p className="p-xsmall text-error">* {errors[section].message.toString()}</p>
       ) : (
         <>
           {customSuccessMessage && <p className="p-xsmall text-green">* {customSuccessMessage}</p>}

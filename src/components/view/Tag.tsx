@@ -15,6 +15,7 @@ export const Tag = ({
   const tagStyle = secondary ? 'bg-grey-3 text-grey-6' : 'bg-green-4 text-white'
   return (
     <button
+      type="button"
       className={`flex-align w-fit shrink-0 rounded-2xl px-3 py-1 ${tagStyle}`}
       disabled={disabled}
       onClick={onClick}

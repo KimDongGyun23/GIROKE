@@ -4,6 +4,7 @@ import type { CSSubjectType, TermItemType } from '@/types/common'
 import { CS_SUBJECT } from '@/utils/constants'
 
 import { TermItem } from '../domain/TermItem'
+import { PostAdditionButton } from '../view/PostAdditionButton'
 import { Search } from '../view/Search'
 import { Tag } from '../view/Tag'
 
@@ -60,8 +61,12 @@ export const Term = () => {
       <Search onClickSearchButton={() => {}} />
 
       <div className="scroll flex w-fit shrink-0 gap-2 overflow-x-scroll py-3">
-        {CS_SUBJECT.map((subject: CSSubjectType) => (
-          <Tag secondary={activeSubject !== subject} onClick={() => setActiveSubject(subject)}>
+        {[...CS_SUBJECT, '전체' as const].map((subject: CSSubjectType) => (
+          <Tag
+            key={subject}
+            secondary={activeSubject !== subject}
+            onClick={() => setActiveSubject(subject)}
+          >
             {subject}
           </Tag>
         ))}
@@ -72,6 +77,8 @@ export const Term = () => {
           <TermItem key={item.id} item={item} />
         ))}
       </section>
+
+      <PostAdditionButton to={'/term/create'} />
     </main>
   )
 }
