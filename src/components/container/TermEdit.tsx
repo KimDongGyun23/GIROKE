@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FormProvider } from 'react-hook-form'
 
 import { useTermForm } from '@/hooks/useForms'
@@ -9,20 +9,42 @@ import { InputGroup } from '../view/inputGroup'
 import { SubHeaderWithoutIcon } from '../view/SubHeader'
 import { Tag } from '../view/Tag'
 
-export const TermCreate = () => {
+type TermEditData = {
+  id: number
+  name: string
+  description: string
+  tag: CSSubjectType
+}
+
+const termEditData: TermEditData = {
+  id: 0,
+  name: 'DNS',
+  description:
+    '사용자에게 친숙한 도메인 이름을 컴퓨터가 네트워크에서 서로를 식별하는 데 사용하는 인터넷 프로토콜(IP) 주소로 변환하는 인터넷 표준 프로토콜의 구성 요소',
+  tag: '네트워크',
+}
+
+export const TermEdit = () => {
+  const { id, name, description, tag } = termEditData
   const formMethod = useTermForm()
   const { handleSubmit, setValue } = formMethod
-  const [selectedSubject, setSelectedSubject] = useState<CSSubjectType | null>(null)
+  const [selectedSubject, setSelectedSubject] = useState<CSSubjectType>(tag)
 
   const handleSubmitTermForm = () => {
     console.log('submit')
   }
 
+  useEffect(() => {
+    setValue('name', name)
+    setValue('tag', tag)
+    setValue('description', description)
+  }, [])
+
   return (
     <>
       <SubHeaderWithoutIcon
         type="complete"
-        title="용어 추가"
+        title="용어 수정"
         onClickText={handleSubmit(handleSubmitTermForm)}
       />
 

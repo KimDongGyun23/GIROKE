@@ -32,7 +32,7 @@ export const TextArea = ({ section, readOnly = false, placeholder }: TextAreaPro
     <textarea
       {...register(section)}
       readOnly={readOnly}
-      className="p-medium h-[124px] resize-none rounded-lg border border-green-4 px-4 py-[10px] text-grey-7 placeholder:text-grey-5 focus:outline-none"
+      className="p-medium h-[148px] resize-none rounded-lg border border-green-4 px-4 py-[10px] text-grey-7 placeholder:text-grey-5 focus:outline-none"
       placeholder={placeholder}
     />
   )

@@ -6,6 +6,7 @@ import { HomeEdit } from '../container/HomeEdit'
 import { Term } from '../container/Term'
 import { TermCreate } from '../container/TermCreate'
 import { TermDetail } from '../container/TermDetail'
+import { TermEdit } from '../container/TermEdit'
 
 export const RouterComponent = () => {
   return (
@@ -21,6 +22,7 @@ export const RouterComponent = () => {
       <Route path="/term" element={<Term />} />
       <Route path="/term/create" element={<TermCreate />} />
       <Route path="/term/detail/:id" element={<TermDetail />} />
+      <Route path="/term/edit/:id" element={<TermEdit />} />
 
       <Route path="/bookmark" element={<div />} />
     </Routes>
