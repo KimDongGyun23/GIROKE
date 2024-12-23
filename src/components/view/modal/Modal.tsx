@@ -81,3 +81,48 @@ export const ModalWithTwoButton = ({
     </ModalLayout>
   )
 }
+
+export const ModalCreate = ({
+  isOpen,
+  closeModal,
+  onClick,
+}: Omit<ModalWithOneButtonProps, 'content' | 'buttonLabel'>) => (
+  <ModalWithOneButton
+    isOpen={isOpen}
+    closeModal={closeModal}
+    onClick={onClick}
+    content="성공적으로 추가되었습니다."
+    buttonLabel="확인"
+  />
+)
+
+export const ModalEdit = ({
+  isOpen,
+  closeModal,
+  onClick,
+}: Omit<ModalWithOneButtonProps, 'content' | 'buttonLabel'>) => (
+  <ModalWithOneButton
+    isOpen={isOpen}
+    closeModal={closeModal}
+    onClick={onClick}
+    content="수정이 완료되었습니다."
+    buttonLabel="확인"
+  />
+)
+
+export const ModalDelete = ({
+  isOpen,
+  closeModal,
+  leftButtonOnClick,
+  rightButtonOnClick,
+}: Omit<ModalWithTwoButtonProps, 'content' | 'leftButtonLabel' | 'rightButtonLabel'>) => (
+  <ModalWithTwoButton
+    isOpen={isOpen}
+    closeModal={closeModal}
+    content="정말로 삭제하시겠습니까?"
+    leftButtonLabel="취소"
+    rightButtonLabel="삭제"
+    leftButtonOnClick={leftButtonOnClick}
+    rightButtonOnClick={rightButtonOnClick}
+  />
+)
