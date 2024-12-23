@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
 import { FormProvider } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 
+import { useBoolean } from '@/hooks/useBoolean'
 import { useTermForm } from '@/hooks/useForms'
 import type { CSSubjectType } from '@/types/common'
 import { CS_SUBJECT } from '@/utils/constants'
 
 import { InputGroup } from '../view/inputGroup'
+import { ModalEdit } from '../view/modal/Modal'
 import { SubHeaderWithoutIcon } from '../view/SubHeader'
 import { Tag } from '../view/Tag'
 
@@ -25,13 +28,23 @@ const termEditData: TermEditData = {
 }
 
 export const TermEdit = () => {
-  const { id, name, description, tag } = termEditData
+  const navigate = useNavigate()
   const formMethod = useTermForm()
+
+  const { id, name, description, tag } = termEditData
   const { handleSubmit, setValue } = formMethod
+
+  const [modalState, openModal, closeModal] = useBoolean(false)
   const [selectedSubject, setSelectedSubject] = useState<CSSubjectType>(tag)
 
   const handleSubmitTermForm = () => {
     console.log('submit')
+    openModal()
+  }
+
+  const handleClickModalButton = () => {
+    closeModal()
+    navigate(`/term/detail/${id}`, { replace: true })
   }
 
   useEffect(() => {
@@ -85,6 +98,10 @@ export const TermEdit = () => {
           </form>
         </FormProvider>
       </main>
+
+      {modalState && (
+        <ModalEdit isOpen={modalState} closeModal={closeModal} onClick={handleClickModalButton} />
+      )}
     </>
   )
 }
