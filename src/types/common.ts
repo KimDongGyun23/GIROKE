@@ -9,6 +9,13 @@ export type CSSubjectType =
   | '운영체제'
   | '컴퓨터구조'
 
+export type TermItemType = {
+  id: number
+  term: string
+  tag: CSSubjectType | '전체'
+  description: string
+}
+
 export type ActiveIconProps = {
   active?: boolean
 }

@@ -16,8 +16,8 @@ const scheduledDates = [
 ]
 
 const todoList = [
-  { todo: '깃허브 리드미 수정', isActive: false },
-  { todo: '코테 문제 3개', isActive: true },
+  { id: 0, todo: '깃허브 리드미 수정', isActive: false },
+  { id: 1, todo: '코테 문제 3개', isActive: true },
 ]
 
 export const Home = () => {
@@ -35,7 +35,7 @@ export const Home = () => {
     setSelectedDate(newDate)
   }
   return (
-    <>
+    <main className="mx-4">
       <HomeCalender
         value={selectedDate}
         onChange={handleDateChange}
@@ -51,11 +51,11 @@ export const Home = () => {
         </div>
 
         <div className="flex-column my-4 gap-2">
-          {todoList.map(({ todo, isActive }, index) => (
-            <TodoItem todo={todo} isActive={isActive} key={index} />
+          {todoList.map(({ id, todo, isActive }) => (
+            <TodoItem key={id} id={id} todo={todo} isActive={isActive} />
           ))}
         </div>
       </section>
-    </>
+    </main>
   )
 }

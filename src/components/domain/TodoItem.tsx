@@ -1,17 +1,23 @@
+import { Link } from 'react-router-dom'
+
 import { CheckBoxIcon, TrashIcon, WrenchIcon } from '../view/icons/ActiveIcon'
 
 type TodoItemProps = {
+  id: number
   todo: string
   isActive: boolean
 }
 
-export const TodoItem = ({ todo, isActive }: TodoItemProps) => {
+export const TodoItem = ({ id, todo, isActive }: TodoItemProps) => {
   const activeStyle = isActive
     ? 'bg-green-4 border-none text-white'
     : 'border border-grey-3 bg-white text-grey-7'
 
   return (
-    <div className={`flex-between-align p-medium rounded-lg px-[14px] py-3 ${activeStyle}`}>
+    <Link
+      to={`/home/edit/${id}`}
+      className={`flex-between-align p-medium rounded-lg px-[14px] py-3 ${activeStyle}`}
+    >
       <p>{todo}</p>
       <div className="flex-align gap-2">
         <button>
@@ -24,6 +30,6 @@ export const TodoItem = ({ todo, isActive }: TodoItemProps) => {
           <TrashIcon active={isActive} />
         </button>
       </div>
-    </div>
+    </Link>
   )
 }

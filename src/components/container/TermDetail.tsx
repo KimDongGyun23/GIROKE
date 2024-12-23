@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useToggle } from '@/hooks/useToggle'
 
+import { BottomBookmark } from '../view/BottomBookmark'
 import { Kebab } from '../view/Kebab'
 import { ModalDelete } from '../view/modal/Modal'
 import { SubHeaderWithIcon } from '../view/SubHeader'
@@ -35,7 +36,7 @@ export const TermDetail = () => {
         {kebabState && <Kebab list={kebabArr} location="right-0 -translate-x-4" redIndex={1} />}
       </div>
 
-      <main className="flex-column scroll grow pt-5">
+      <main className="flex-column scroll grow px-4 pt-5">
         <div>
           <h4 className="font-bold">{title}</h4>
           <div className="flex-between items-end">
@@ -51,6 +52,8 @@ export const TermDetail = () => {
           </div>
         </div>
       </main>
+
+      <BottomBookmark isActive />
 
       {modalState && (
         <ModalDelete

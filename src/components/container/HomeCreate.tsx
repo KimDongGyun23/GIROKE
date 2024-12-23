@@ -8,10 +8,10 @@ export const HomeCreate = () => {
   const formMethod = useForm()
 
   return (
-    <div>
+    <>
       <SubHeaderWithoutIcon type="complete" title="할일 추가" />
 
-      <section className="flex-column mt-5 gap-5">
+      <main className="flex-column mx-4 mt-5 gap-5">
         <HomeCalender />
 
         <FormProvider {...formMethod}>
@@ -20,7 +20,7 @@ export const HomeCreate = () => {
             <InputGroup.Input section="title" placeholder="할일을 적어주세요." />
           </InputGroup>
         </FormProvider>
-      </section>
-    </div>
+      </main>
+    </>
   )
 }

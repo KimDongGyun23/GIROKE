@@ -1,15 +1,16 @@
 import { Link } from 'react-router-dom'
 
+import type { TermItemType } from '@/types/common'
+
 import { Tag } from '../view/Tag'
 
 type TermItemProps = {
-  id: number
-  term: string
-  tag: string
-  description: string
+  item: TermItemType
 }
 
-export const TermItem = ({ id = 0, term, tag, description }: TermItemProps) => {
+export const TermItem = ({ item }: TermItemProps) => {
+  const { id, term, tag, description } = item
+
   return (
     <Link to={`/term/detail/${id}`} className="flex-column gap-5 border-b border-grey-2 px-1 py-5">
       <div className="flex-between-align">

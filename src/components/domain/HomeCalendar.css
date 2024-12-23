@@ -7,7 +7,6 @@
 .react-calendar__navigation {
   display: flex;
   gap: 6px;
-  margin-left: 12px;
 }
 
 .react-calendar__navigation button:hover,
