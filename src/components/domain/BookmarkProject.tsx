@@ -1,14 +1,13 @@
 import { useState } from 'react'
 
-import type { ProjectTagType } from '@/types/common'
-import type { ProjectItemType } from '@/types/project'
+import type { ProjectItemType, ProjectTagType } from '@/types/project'
 import { PROJECT_TAGS } from '@/utils/constants'
 
 import { Tag } from '../view/Tag'
 
 import { ProjectItem } from './ProjectItem'
 
-const projectArr: ProjectItemType[] = [
+const mockProjects: ProjectItemType[] = [
   {
     id: 0,
     title: 'BROOM',
@@ -45,19 +44,22 @@ const projectArr: ProjectItemType[] = [
 
 export const BookmarkProject = () => {
   const [activeTag, setActiveTag] = useState<ProjectTagType>(PROJECT_TAGS[0])
+
+  const handleTagClick = (tag: ProjectTagType) => setActiveTag(tag)
+
   return (
     <>
       <div className="scroll flex w-fit shrink-0 gap-2 overflow-x-scroll py-3">
-        {PROJECT_TAGS.map((tag: ProjectTagType) => (
-          <Tag key={tag} secondary={activeTag !== tag} onClick={() => setActiveTag(tag)}>
+        {PROJECT_TAGS.map((tag) => (
+          <Tag key={tag} secondary={activeTag !== tag} onClick={() => handleTagClick(tag)}>
             {tag}
           </Tag>
         ))}
       </div>
 
       <section className="flex-column scroll">
-        {projectArr.map((item) => (
-          <ProjectItem key={item.id} item={item} />
+        {mockProjects.map((project) => (
+          <ProjectItem key={project.id} project={project} />
         ))}
       </section>
     </>

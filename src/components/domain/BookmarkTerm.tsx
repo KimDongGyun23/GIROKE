@@ -7,7 +7,7 @@ import { Tag } from '../view/Tag'
 
 import { TermItem } from './TermItem'
 
-const termArr: TermItemType[] = [
+const mockTerms: TermItemType[] = [
   {
     id: 0,
     term: 'DNS',
@@ -54,19 +54,22 @@ const termArr: TermItemType[] = [
 
 export const BookmarkTerm = () => {
   const [activeTag, setActiveTag] = useState<TermTagsType>(TERM_TAGS[0])
+
+  const handleTagClick = (tag: TermTagsType) => setActiveTag(tag)
+
   return (
     <>
       <div className="scroll flex w-fit shrink-0 gap-2 overflow-x-scroll py-3">
-        {TERM_TAGS.map((tag: TermTagsType) => (
-          <Tag key={tag} secondary={activeTag !== tag} onClick={() => setActiveTag(tag)}>
+        {TERM_TAGS.map((tag) => (
+          <Tag key={tag} secondary={activeTag !== tag} onClick={() => handleTagClick(tag)}>
             {tag}
           </Tag>
         ))}
       </div>
 
       <section className="flex-column scroll">
-        {termArr.map((item) => (
-          <TermItem key={item.id} item={item} />
+        {mockTerms.map((term) => (
+          <TermItem key={term.id} item={term} />
         ))}
       </section>
     </>
