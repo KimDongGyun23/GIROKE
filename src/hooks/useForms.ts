@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 
+import type { NoteFormType } from '@/types/note'
 import type { ProjectFormType } from '@/types/project'
 import type { TermFormType } from '@/types/term'
 
@@ -48,6 +49,26 @@ export const useProjectForm = () => {
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
     resolver: zodResolver(projectSchema),
+  })
+
+  return formMethod
+}
+
+const noteSchema = z.object({
+  title: z.string().min(1, { message: '노트 제목을 입력해주세요.' }),
+  notes: z.array(
+    z.object({
+      subTitle: z.string().min(1, { message: '단락 제목을 입력해주세요.' }),
+      content: z.string().min(1, { message: '단락 내용을 입력해주세요.' }),
+    }),
+  ),
+})
+
+export const useNoteForm = () => {
+  const formMethod = useForm<NoteFormType>({
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
+    resolver: zodResolver(noteSchema),
   })
 
   return formMethod
