@@ -9,14 +9,13 @@ export type NoteItemType = {
   tag: NoteTagType
 }
 
-export type NotesType = {
+type ParagraphType = {
   subTitle: string
   content: string
 }
 
-export type NoteDetailType = Omit<NoteItemType, 'createdAt'> & {
-  notes: NotesType[]
+export type NoteFormType = {
+  title: string
   tag: NoteTagType
+  paragraphs: ParagraphType[]
 }
-
-export type NoteFormType = Omit<NoteDetailType, 'id'>

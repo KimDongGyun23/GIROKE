@@ -16,7 +16,7 @@ import { NOTE_TAGS } from '@/utils/constants'
 const noteEditData: NoteFormType = {
   title: '리액트 렌더링 과정',
   tag: '공부',
-  notes: [
+  paragraphs: [
     { subTitle: '단락1 제목', content: '단락1 내용' },
     { subTitle: '단락2 제목', content: '단락2 내용' },
   ],
@@ -26,12 +26,12 @@ export const NoteEdit = () => {
   const navigate = useNavigate()
   const formMethod = useNoteForm()
 
-  const { title, tag, notes } = noteEditData
+  const { title, tag, paragraphs } = noteEditData
 
   const { handleSubmit, setValue } = formMethod
 
   const [modalState, openModal, closeModal] = useBoolean(false)
-  const [notesState, setNotesState] = useState(notes)
+  const [notesState, setNotesState] = useState(paragraphs)
   const [selectedTag, setSelectedTag] = useState<number>(0)
 
   const handleSubmitProjectForm = () => {
@@ -47,7 +47,7 @@ export const NoteEdit = () => {
   useEffect(() => {
     setValue('title', title)
     setValue('tag', tag)
-    setValue('notes', notes)
+    setValue('paragraphs', paragraphs)
   }, [])
 
   return (
