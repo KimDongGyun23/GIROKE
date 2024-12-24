@@ -31,3 +31,7 @@ export const Label = ({
     </div>
   )
 }
+
+export const LabelWithoutForm = ({ children }: PropsWithChildren) => {
+  return <p className="p-large font-medium text-grey-7">{children}</p>
+}

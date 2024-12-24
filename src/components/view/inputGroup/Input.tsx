@@ -1,3 +1,4 @@
+import type { PropsWithChildren } from 'react'
 import { useFormContext } from 'react-hook-form'
 
 type InputProps = {
@@ -35,5 +36,11 @@ export const TextArea = ({ section, readOnly = false, placeholder }: TextAreaPro
       className="p-medium h-[148px] resize-none rounded-lg border border-green-4 px-4 py-[10px] text-grey-7 placeholder:text-grey-5 focus:outline-none"
       placeholder={placeholder}
     />
+  )
+}
+
+export const InputBox = ({ children }: PropsWithChildren) => {
+  return (
+    <div className="rounded-lg border border-green-4 px-4 py-[10px] text-grey-7">{children}</div>
   )
 }
