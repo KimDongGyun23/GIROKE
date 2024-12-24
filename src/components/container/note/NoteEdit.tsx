@@ -25,29 +25,36 @@ const noteEditData: NoteFormType = {
 export const NoteEdit = () => {
   const navigate = useNavigate()
   const formMethod = useNoteForm()
-
-  const { title, tag, paragraphs } = noteEditData
-
   const { handleSubmit, setValue } = formMethod
 
-  const [modalState, openModal, closeModal] = useBoolean(false)
-  const [notesState, setNotesState] = useState(paragraphs)
-  const [selectedTag, setSelectedTag] = useState<number>(0)
+  const [isModalOpen, openModal, closeModal] = useBoolean(false)
+  const [paragraphs, setParagraphs] = useState(noteEditData.paragraphs)
+  const [selectedTag, setSelectedTag] = useState<NoteTagType>(noteEditData.tag)
 
-  const handleSubmitProjectForm = () => {
+  const handleFormSubmit = () => {
     console.log('submit')
     openModal()
   }
 
-  const handleClickModalButton = () => {
+  const handleModalConfirm = () => {
     closeModal()
     navigate(`/note/detail/0`, { replace: true })
   }
 
+  const addParagraph = () => {
+    setParagraphs((prev) => [...prev, { subTitle: '', content: '' }])
+  }
+
+  const removeParagraph = () => {
+    if (paragraphs.length > 1) {
+      setParagraphs((prev) => prev.slice(0, -1))
+    }
+  }
+
   useEffect(() => {
-    setValue('title', title)
-    setValue('tag', tag)
-    setValue('paragraphs', paragraphs)
+    setValue('title', noteEditData.title)
+    setValue('tag', noteEditData.tag)
+    setValue('paragraphs', noteEditData.paragraphs)
   }, [])
 
   return (
@@ -55,7 +62,7 @@ export const NoteEdit = () => {
       <SubHeaderWithoutIcon
         type="complete"
         title="노트 수정"
-        onClickText={handleSubmit(handleSubmitProjectForm)}
+        onClickText={handleSubmit(handleFormSubmit)}
       />
 
       <main className="scroll mx-4 py-5">
@@ -75,9 +82,9 @@ export const NoteEdit = () => {
                 {NOTE_TAGS.slice(1).map((tag: NoteTagType) => (
                   <Tag
                     key={tag}
-                    secondary={tag !== NOTE_TAGS[selectedTag]}
+                    secondary={tag !== selectedTag}
                     onClick={() => {
-                      setSelectedTag(NOTE_TAGS.indexOf(tag))
+                      setSelectedTag(tag)
                       setValue('tag', tag)
                     }}
                   >
@@ -87,7 +94,7 @@ export const NoteEdit = () => {
               </div>
             </InputGroup>
 
-            {notesState.map((_, index) => (
+            {paragraphs.map((_, index) => (
               <React.Fragment key={index}>
                 <InputGroup>
                   <InputGroup.Label section={`notes.${index}.subTitle`}>단락 제목</InputGroup.Label>
@@ -104,33 +111,18 @@ export const NoteEdit = () => {
               </React.Fragment>
             ))}
 
-            <Button
-              type="button"
-              size="sm"
-              onClick={() => setNotesState((prev) => [...prev, { subTitle: '', content: '' }])}
-            >
+            <Button type="button" size="sm" onClick={addParagraph}>
               단락 추가
             </Button>
-            <Button
-              type="button"
-              size="sm"
-              onClick={() =>
-                notesState.length > 1 &&
-                setNotesState((prev) => {
-                  const newState = [...prev]
-                  newState.pop()
-                  return newState
-                })
-              }
-            >
+            <Button type="button" size="sm" onClick={removeParagraph}>
               마지막 단락 삭제
             </Button>
           </form>
         </FormProvider>
       </main>
 
-      {modalState && (
-        <ModalCreate isOpen={modalState} closeModal={closeModal} onClick={handleClickModalButton} />
+      {isModalOpen && (
+        <ModalCreate isOpen={isModalOpen} closeModal={closeModal} onClick={handleModalConfirm} />
       )}
     </>
   )

@@ -8,7 +8,7 @@ import { Tag } from '@/components/view/Tag'
 import type { NoteItemType, NoteTagType } from '@/types/note'
 import { NOTE_TAGS } from '@/utils/constants'
 
-const noteArr: NoteItemType[] = [
+const mockNotes: NoteItemType[] = [
   { id: 0, title: '리액트 렌더링 과정', createdAt: '2024.12.24', tag: '공부' },
   { id: 1, title: '리액트 렌더링 과정', createdAt: '2024.12.24', tag: '공부' },
   { id: 2, title: '리액트 렌더링 과정', createdAt: '2024.12.24', tag: '공부' },
@@ -17,14 +17,17 @@ const noteArr: NoteItemType[] = [
 
 export const NoteSearch = () => {
   const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const searchName = searchParams.get('searchName')
+  const [searchParams] = useSearchParams()
+  const searchName = searchParams.get('searchName') || ''
   const [activeTag, setActiveTag] = useState<NoteTagType>(NOTE_TAGS[0])
+
+  const handleBackClick = () => navigate(-1)
+  const handleTagClick = (tag: NoteTagType) => setActiveTag(tag)
 
   return (
     <main className="flex-column mx-4 h-full pt-5">
       <header className="flex-align gap-4">
-        <button onClick={() => navigate(-1)}>
+        <button onClick={handleBackClick}>
           <BackArrowIcon />
         </button>
         <div className="grow">
@@ -33,16 +36,16 @@ export const NoteSearch = () => {
       </header>
 
       <div className="scroll flex w-fit shrink-0 gap-2 overflow-x-scroll py-3">
-        {NOTE_TAGS.map((tag: NoteTagType) => (
-          <Tag key={tag} secondary={activeTag !== tag} onClick={() => setActiveTag(tag)}>
+        {NOTE_TAGS.map((tag) => (
+          <Tag key={tag} secondary={activeTag !== tag} onClick={() => handleTagClick(tag)}>
             {tag}
           </Tag>
         ))}
       </div>
 
       <section className="flex-column scroll grow">
-        {noteArr.map((item) => (
-          <NoteItem key={item.id} item={item} />
+        {mockNotes.map((note) => (
+          <NoteItem key={note.id} note={note} />
         ))}
       </section>
     </main>

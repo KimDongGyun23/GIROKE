@@ -5,11 +5,11 @@ import type { NoteItemType } from '@/types/note'
 import { Tag } from '../view/Tag'
 
 type NoteItemProps = {
-  item: NoteItemType
+  note: NoteItemType
 }
 
-export const NoteItem = ({ item }: NoteItemProps) => {
-  const { id, title, createdAt, tag } = item
+export const NoteItem = ({ note }: NoteItemProps) => {
+  const { id, title, createdAt, tag } = note
 
   return (
     <Link to={`/note/detail/${id}`} className="flex-column gap-5 border-b border-grey-2 px-1 py-5">

@@ -16,21 +16,28 @@ import { NOTE_TAGS } from '@/utils/constants'
 export const NoteCreate = () => {
   const navigate = useNavigate()
   const formMethod = useNoteForm()
-
   const { handleSubmit, setValue } = formMethod
 
-  const [modalState, openModal, closeModal] = useBoolean(false)
-  const [numberOfNotes, setNumberOfNotes] = useState<number>(1)
-  const [selectedTag, setSelectedTag] = useState<number>(0)
+  const [isModalOpen, openModal, closeModal] = useBoolean(false)
+  const [paragraphCount, setParagraphCount] = useState<number>(1)
+  const [selectedTag, setSelectedTag] = useState<NoteTagType>(NOTE_TAGS[0])
 
-  const handleSubmitProjectForm = () => {
+  const handleFormSubmit = () => {
     console.log('submit')
     openModal()
   }
 
-  const handleClickModalButton = () => {
+  const handleModalConfirm = () => {
     closeModal()
     navigate(`/note/detail/0`, { replace: true })
+  }
+
+  const addParagraph = () => setParagraphCount((prev) => prev + 1)
+  const removeParagraph = () => setParagraphCount((prev) => Math.max(1, prev - 1))
+
+  const handleTagSelect = (tag: NoteTagType) => {
+    setSelectedTag(tag)
+    setValue('tag', tag)
   }
 
   return (
@@ -38,7 +45,7 @@ export const NoteCreate = () => {
       <SubHeaderWithoutIcon
         type="complete"
         title="노트 추가"
-        onClickText={handleSubmit(handleSubmitProjectForm)}
+        onClickText={handleSubmit(handleFormSubmit)}
       />
 
       <main className="scroll mx-4 py-5">
@@ -58,11 +65,8 @@ export const NoteCreate = () => {
                 {NOTE_TAGS.slice(1).map((tag: NoteTagType) => (
                   <Tag
                     key={tag}
-                    secondary={tag !== NOTE_TAGS[selectedTag]}
-                    onClick={() => {
-                      setSelectedTag(NOTE_TAGS.indexOf(tag))
-                      setValue('tag', tag)
-                    }}
+                    secondary={tag !== selectedTag}
+                    onClick={() => handleTagSelect(tag)}
                   >
                     {tag}
                   </Tag>
@@ -70,7 +74,7 @@ export const NoteCreate = () => {
               </div>
             </InputGroup>
 
-            {[...Array(numberOfNotes)].map((_, index) => (
+            {[...Array(paragraphCount)].map((_, index) => (
               <React.Fragment key={index}>
                 <InputGroup>
                   <InputGroup.Label section={`subTitle${index}`}>단락 제목</InputGroup.Label>
@@ -87,22 +91,18 @@ export const NoteCreate = () => {
               </React.Fragment>
             ))}
 
-            <Button type="button" size="sm" onClick={() => setNumberOfNotes((prev) => prev + 1)}>
+            <Button type="button" size="sm" onClick={addParagraph}>
               단락 추가
             </Button>
-            <Button
-              type="button"
-              size="sm"
-              onClick={() => setNumberOfNotes((prev) => (prev > 1 ? prev - 1 : 1))}
-            >
+            <Button type="button" size="sm" onClick={removeParagraph}>
               마지막 단락 삭제
             </Button>
           </form>
         </FormProvider>
       </main>
 
-      {modalState && (
-        <ModalCreate isOpen={modalState} closeModal={closeModal} onClick={handleClickModalButton} />
+      {isModalOpen && (
+        <ModalCreate isOpen={isModalOpen} closeModal={closeModal} onClick={handleModalConfirm} />
       )}
     </>
   )

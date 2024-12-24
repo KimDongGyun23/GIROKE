@@ -8,7 +8,7 @@ import { Tag } from '@/components/view/Tag'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useToggle } from '@/hooks/useToggle'
 
-const detailData = {
+const mockNoteDetail = {
   id: 0,
   title: '리액트 렌더링 과정',
   createdAt: '2024.12.24',
@@ -21,13 +21,19 @@ const detailData = {
 
 export const NoteDetail = () => {
   const navigate = useNavigate()
-  const [kebabState, toggleKebabState] = useToggle(false)
-  const [modalState, openModal, closeModal] = useBoolean(false)
+  const [isKebabOpen, toggleKebabState] = useToggle(false)
+  const [isModalOpen, openModal, closeModal] = useBoolean(false)
 
-  const { id, title, createdAt, tag, notes } = detailData
+  const { id, title, createdAt, tag, notes } = mockNoteDetail
+
+  const handleEdit = () => navigate(`/note/edit/${id}`)
+  const handleDelete = () => {
+    // 삭제 로직 구현
+    closeModal()
+  }
 
   const kebabArr = [
-    { label: '수정', onClick: () => navigate(`/note/edit/${id}`) },
+    { label: '수정', onClick: handleEdit },
     { label: '삭제', onClick: openModal },
   ]
 
@@ -35,7 +41,7 @@ export const NoteDetail = () => {
     <>
       <div>
         <SubHeaderWithIcon type="kebab" title="" onClickIcon={toggleKebabState} />
-        {kebabState && <Kebab list={kebabArr} location="right-0 -translate-x-4" redIndex={1} />}
+        {isKebabOpen && <Kebab list={kebabArr} location="right-0 -translate-x-4" redIndex={1} />}
       </div>
 
       <main className="flex-column scroll grow px-4 pt-5">
@@ -57,12 +63,12 @@ export const NoteDetail = () => {
         </section>
       </main>
 
-      {modalState && (
+      {isModalOpen && (
         <ModalDelete
-          isOpen={modalState}
+          isOpen={isModalOpen}
           closeModal={closeModal}
           leftButtonOnClick={closeModal}
-          rightButtonOnClick={() => {}}
+          rightButtonOnClick={handleDelete}
         />
       )}
     </>
