@@ -15,32 +15,24 @@ const scheduledDates = [
   new Date('2024-12-26'),
 ]
 
-const todoList = [
+const mockTodoList = [
   { id: 0, todo: '깃허브 리드미 수정', isActive: false },
   { id: 1, todo: '코테 문제 3개', isActive: true },
 ]
 
 export const Home = () => {
   const [selectedDate, setSelectedDate] = useState<Value>(new Date())
-  const isDateMarked = (date: Date) => {
-    return scheduledDates.some(
-      (scheduleDate: Date) =>
-        dayjs(scheduleDate).format('YYYYMMDD') === dayjs(date).format('YYYYMMDD'),
+
+  const isDateMarked = (date: Date) =>
+    scheduledDates.some(
+      (scheduleDate) => dayjs(scheduleDate).format('YYYYMMDD') === dayjs(date).format('YYYYMMDD'),
     )
-  }
 
   const tileClassName = ({ date }: { date: Date }) => (isDateMarked(date) ? 'marked' : '')
 
-  const handleDateChange = (newDate: Value) => {
-    setSelectedDate(newDate)
-  }
   return (
     <main className="mx-4">
-      <HomeCalender
-        value={selectedDate}
-        onChange={handleDateChange}
-        tileClassName={tileClassName}
-      />
+      <HomeCalender value={selectedDate} onChange={setSelectedDate} tileClassName={tileClassName} />
 
       <section className="mt-9">
         <div className="flex-between items-end">
@@ -51,7 +43,7 @@ export const Home = () => {
         </div>
 
         <div className="flex-column my-4 gap-2">
-          {todoList.map(({ id, todo, isActive }) => (
+          {mockTodoList.map(({ id, todo, isActive }) => (
             <TodoItem key={id} id={id} todo={todo} isActive={isActive} />
           ))}
         </div>
