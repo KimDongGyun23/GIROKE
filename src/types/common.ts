@@ -9,3 +9,8 @@ export type PageNavItemsType = {
   Component: ComponentType<Required<ActiveIconProps>>
   url: string
 }
+
+export type LoginFormType = {
+  id: string
+  password: string
+}

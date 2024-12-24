@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 
+import type { LoginFormType } from '@/types/common'
 import type { NoteFormType } from '@/types/note'
 import type { ProjectFormType } from '@/types/project'
 import type { TermFormType } from '@/types/term'
@@ -69,6 +70,21 @@ export const useNoteForm = () => {
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
     resolver: zodResolver(noteSchema),
+  })
+
+  return formMethod
+}
+
+const loginSchema = z.object({
+  id: z.string().min(1, { message: '아이디를 입력해주세요.' }),
+  password: z.string().min(1, { message: '비밀번호를 입력해주세요.' }),
+})
+
+export const useLoginForm = () => {
+  const formMethod = useForm<LoginFormType>({
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
+    resolver: zodResolver(loginSchema),
   })
 
   return formMethod

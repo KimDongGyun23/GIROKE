@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 
+import { Login } from '../container/auth/login'
 import { Bookmark } from '../container/bookmark/Bookmark'
 import { Home } from '../container/home/Home'
 import { HomeCreate } from '../container/home/HomeCreate'
@@ -23,7 +24,8 @@ import { TermSearch } from '../container/term/TermSearch'
 export const RouterComponent = () => {
   return (
     <Routes>
-      <Route path="/" element={<div />} />
+      <Route path="/" element={<Login />} />
+
       <Route path="/home" element={<Home />} />
       <Route path="/home/create" element={<HomeCreate />} />
       <Route path="/home/edit/:id" element={<HomeEdit />} />
