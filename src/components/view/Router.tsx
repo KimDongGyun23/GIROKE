@@ -4,6 +4,7 @@ import { Home } from '../container/Home'
 import { HomeCreate } from '../container/HomeCreate'
 import { HomeEdit } from '../container/HomeEdit'
 import { Note } from '../container/Note'
+import { NoteDetail } from '../container/NoteDetail'
 import { Project } from '../container/Project'
 import { ProjectCreate } from '../container/ProjectCreate'
 import { ProjectDetail } from '../container/ProjectDetail'
@@ -36,6 +37,7 @@ export const RouterComponent = () => {
       <Route path="/project/search" element={<ProjectSearch />} />
 
       <Route path="/note" element={<Note />} />
+      <Route path="/note/detail/:id" element={<NoteDetail />} />
 
       <Route path="/bookmark" element={<div />} />
     </Routes>
