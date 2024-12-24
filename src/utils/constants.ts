@@ -8,3 +8,4 @@ export const CS_SUBJECT = [
 ] as const
 
 export const PROJECT_TAGS = ['전체', '원따봉', '쌍따봉', '트리플따봉'] as const
+export const NOTE_TAGS = ['전체', '강의', '공부', '프로젝트', 'CS'] as const

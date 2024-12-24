@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import { Home } from '../container/Home'
 import { HomeCreate } from '../container/HomeCreate'
 import { HomeEdit } from '../container/HomeEdit'
+import { Note } from '../container/Note'
 import { Project } from '../container/Project'
 import { ProjectCreate } from '../container/ProjectCreate'
 import { ProjectDetail } from '../container/ProjectDetail'
@@ -22,8 +23,6 @@ export const RouterComponent = () => {
       <Route path="/home/create" element={<HomeCreate />} />
       <Route path="/home/edit/:id" element={<HomeEdit />} />
 
-      <Route path="/note" element={<div />} />
-
       <Route path="/term" element={<Term />} />
       <Route path="/term/create" element={<TermCreate />} />
       <Route path="/term/search" element={<TermSearch />} />
@@ -35,6 +34,8 @@ export const RouterComponent = () => {
       <Route path="/project/detail/:id" element={<ProjectDetail />} />
       <Route path="/project/edit/:id" element={<ProjectEdit />} />
       <Route path="/project/search" element={<ProjectSearch />} />
+
+      <Route path="/note" element={<Note />} />
 
       <Route path="/bookmark" element={<div />} />
     </Routes>
