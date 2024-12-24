@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 
+import { Bookmark } from '../container/Bookmark'
 import { Home } from '../container/Home'
 import { HomeCreate } from '../container/HomeCreate'
 import { HomeEdit } from '../container/HomeEdit'
@@ -45,7 +46,7 @@ export const RouterComponent = () => {
       <Route path="/note/edit/:id" element={<NoteEdit />} />
       <Route path="/note/search" element={<NoteSearch />} />
 
-      <Route path="/bookmark" element={<div />} />
+      <Route path="/bookmark" element={<Bookmark />} />
     </Routes>
   )
 }
