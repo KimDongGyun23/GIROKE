@@ -1,13 +1,12 @@
 import { useState } from 'react'
 
+import { ProjectItem } from '@/components/domain/ProjectItem'
+import { PostAdditionButton } from '@/components/view/PostAdditionButton'
+import { Search } from '@/components/view/Search'
+import { Tag } from '@/components/view/Tag'
 import type { ProjectTagType } from '@/types/common'
 import type { ProjectItemType } from '@/types/project'
 import { PROJECT_TAGS } from '@/utils/constants'
-
-import { ProjectItem } from '../domain/ProjectItem'
-import { PostAdditionButton } from '../view/PostAdditionButton'
-import { Search } from '../view/Search'
-import { Tag } from '../view/Tag'
 
 const projectArr: ProjectItemType[] = [
   {

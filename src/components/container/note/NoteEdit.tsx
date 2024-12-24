@@ -1,27 +1,37 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import React from 'react'
 import { FormProvider } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
+import { Button } from '@/components/view/Button'
+import { InputGroup } from '@/components/view/inputGroup'
+import { ModalCreate } from '@/components/view/modal/Modal'
+import { SubHeaderWithoutIcon } from '@/components/view/SubHeader'
+import { Tag } from '@/components/view/Tag'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useNoteForm } from '@/hooks/useForms'
-import type { NoteTagType } from '@/types/note'
+import type { NoteFormType, NoteTagType } from '@/types/note'
 import { NOTE_TAGS } from '@/utils/constants'
 
-import { Button } from '../view/Button'
-import { InputGroup } from '../view/inputGroup'
-import { ModalCreate } from '../view/modal/Modal'
-import { SubHeaderWithoutIcon } from '../view/SubHeader'
-import { Tag } from '../view/Tag'
+const noteEditData: NoteFormType = {
+  title: '리액트 렌더링 과정',
+  tag: '공부',
+  notes: [
+    { subTitle: '단락1 제목', content: '단락1 내용' },
+    { subTitle: '단락2 제목', content: '단락2 내용' },
+  ],
+}
 
-export const NoteCreate = () => {
+export const NoteEdit = () => {
   const navigate = useNavigate()
   const formMethod = useNoteForm()
+
+  const { title, tag, notes } = noteEditData
 
   const { handleSubmit, setValue } = formMethod
 
   const [modalState, openModal, closeModal] = useBoolean(false)
-  const [numberOfNotes, setNumberOfNotes] = useState<number>(1)
+  const [notesState, setNotesState] = useState(notes)
   const [selectedTag, setSelectedTag] = useState<number>(0)
 
   const handleSubmitProjectForm = () => {
@@ -34,11 +44,17 @@ export const NoteCreate = () => {
     navigate(`/note/detail/0`, { replace: true })
   }
 
+  useEffect(() => {
+    setValue('title', title)
+    setValue('tag', tag)
+    setValue('notes', notes)
+  }, [])
+
   return (
     <>
       <SubHeaderWithoutIcon
         type="complete"
-        title="노트 추가"
+        title="노트 수정"
         onClickText={handleSubmit(handleSubmitProjectForm)}
       />
 
@@ -71,30 +87,41 @@ export const NoteCreate = () => {
               </div>
             </InputGroup>
 
-            {[...Array(numberOfNotes)].map((_, index) => (
+            {notesState.map((_, index) => (
               <React.Fragment key={index}>
                 <InputGroup>
-                  <InputGroup.Label section={`subTitle${index}`}>단락 제목</InputGroup.Label>
+                  <InputGroup.Label section={`notes.${index}.subTitle`}>단락 제목</InputGroup.Label>
                   <InputGroup.Input
-                    section={`subTitle${index}`}
+                    section={`notes.${index}.subTitle`}
                     placeholder="단락 제목을 입력해주세요."
                   />
                 </InputGroup>
-                <InputGroup.Label section={`content${index}`}>단락 내용</InputGroup.Label>
+                <InputGroup.Label section={`notes.${index}.content`}>단락 내용</InputGroup.Label>
                 <InputGroup.TextArea
-                  section={`content${index}`}
+                  section={`notes.${index}.content`}
                   placeholder="단락 내용을 입력해주세요."
                 />
               </React.Fragment>
             ))}
 
-            <Button type="button" size="sm" onClick={() => setNumberOfNotes((prev) => prev + 1)}>
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => setNotesState((prev) => [...prev, { subTitle: '', content: '' }])}
+            >
               단락 추가
             </Button>
             <Button
               type="button"
               size="sm"
-              onClick={() => setNumberOfNotes((prev) => (prev > 1 ? prev - 1 : 1))}
+              onClick={() =>
+                notesState.length > 1 &&
+                setNotesState((prev) => {
+                  const newState = [...prev]
+                  newState.pop()
+                  return newState
+                })
+              }
             >
               마지막 단락 삭제
             </Button>

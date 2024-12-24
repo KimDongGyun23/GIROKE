@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import dayjs from 'dayjs'
 
-import { HomeCalender } from '../domain/HomeCalendar'
-import { TodoItem } from '../domain/TodoItem'
+import { HomeCalender } from '@/components/domain/HomeCalendar'
+import { TodoItem } from '@/components/domain/TodoItem'
 
 type ValuePiece = Date | null
 type Value = ValuePiece | [ValuePiece, ValuePiece]

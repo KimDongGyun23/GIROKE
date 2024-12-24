@@ -1,34 +1,30 @@
 import { useNavigate } from 'react-router-dom'
 
+import { BottomBookmark } from '@/components/view/BottomBookmark'
+import { Kebab } from '@/components/view/Kebab'
+import { ModalDelete } from '@/components/view/modal/Modal'
+import { SubHeaderWithIcon } from '@/components/view/SubHeader'
+import { Tag } from '@/components/view/Tag'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useToggle } from '@/hooks/useToggle'
 
-import { InputGroup } from '../view/inputGroup'
-import { Kebab } from '../view/Kebab'
-import { ModalDelete } from '../view/modal/Modal'
-import { SubHeaderWithIcon } from '../view/SubHeader'
-import { Tag } from '../view/Tag'
-
 const detailData = {
   id: 0,
-  title: '리액트 렌더링 과정',
-  createdAt: '2024.12.24',
-  tag: '공부',
-  notes: [
-    { subTitle: '단락1 제목', content: '단락1 내용' },
-    { subTitle: '단락1 제목', content: '단락1 내용' },
-  ],
+  title: 'DNS',
+  tag: '네트워크',
+  createdAt: '2024.12.20',
+  description:
+    '사용자에게 친숙한 도메인 이름을 컴퓨터가 네트워크에서 서로를 식별하는 데 사용하는 인터넷 프로토콜(IP) 주소로 변환하는 인터넷 표준 프로토콜의 구성 요소',
 }
 
-export const NoteDetail = () => {
+export const TermDetail = () => {
   const navigate = useNavigate()
+  const { id, title, tag, createdAt, description } = detailData
   const [kebabState, toggleKebabState] = useToggle(false)
   const [modalState, openModal, closeModal] = useBoolean(false)
 
-  const { id, title, createdAt, tag, notes } = detailData
-
   const kebabArr = [
-    { label: '수정', onClick: () => navigate(`/note/edit/${id}`) },
+    { label: '수정', onClick: () => navigate(`/term/edit/${id}`) },
     { label: '삭제', onClick: openModal },
   ]
 
@@ -48,15 +44,15 @@ export const NoteDetail = () => {
           </div>
         </div>
 
-        <section className="flex-column my-4 gap-[10px]">
-          {notes.map(({ subTitle, content }, index) => (
-            <InputGroup key={index}>
-              <InputGroup.LabelWithoutForm>{subTitle}</InputGroup.LabelWithoutForm>
-              <InputGroup.InputBox>{content}</InputGroup.InputBox>
-            </InputGroup>
-          ))}
-        </section>
+        <div className="flex-column mt-4 gap-[10px]">
+          <p className="p-large font-medium text-grey-7">상세 설명</p>
+          <div className="rounded-lg border border-green-4 px-4 py-[10px] text-grey-7">
+            {description}
+          </div>
+        </div>
       </main>
+
+      <BottomBookmark isActive />
 
       {modalState && (
         <ModalDelete

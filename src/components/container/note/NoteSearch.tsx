@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
+import { NoteItem } from '@/components/domain/NoteItem'
+import { BackArrowIcon } from '@/components/view/icons/NonActiveIcon'
+import { Search } from '@/components/view/Search'
+import { Tag } from '@/components/view/Tag'
 import type { NoteItemType, NoteTagType } from '@/types/note'
 import { NOTE_TAGS } from '@/utils/constants'
-
-import { NoteItem } from '../domain/NoteItem'
-import { BackArrowIcon } from '../view/icons/NonActiveIcon'
-import { Search } from '../view/Search'
-import { Tag } from '../view/Tag'
 
 const noteArr: NoteItemType[] = [
   { id: 0, title: '리액트 렌더링 과정', createdAt: '2024.12.24', tag: '공부' },

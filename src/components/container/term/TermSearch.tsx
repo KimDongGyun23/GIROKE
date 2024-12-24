@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
+import { TermItem } from '@/components/domain/TermItem'
+import { BackArrowIcon } from '@/components/view/icons/NonActiveIcon'
+import { Search } from '@/components/view/Search'
+import { Tag } from '@/components/view/Tag'
 import type { TermItemType, TermTagsType } from '@/types/term'
 import { TERM_TAGS } from '@/utils/constants'
-
-import { TermItem } from '../domain/TermItem'
-import { BackArrowIcon } from '../view/icons/NonActiveIcon'
-import { Search } from '../view/Search'
-import { Tag } from '../view/Tag'
 
 const termArr: TermItemType[] = [
   {

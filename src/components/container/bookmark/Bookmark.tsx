@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
-import { BookmarkProject } from '../domain/BookmarkProject'
-import { BookmarkTerm } from '../domain/BookmarkTerm'
+import { BookmarkProject } from '@/components/domain/BookmarkProject'
+import { BookmarkTerm } from '@/components/domain/BookmarkTerm'
 
 const TABS = ['용어 정리', '노트'] as const
 

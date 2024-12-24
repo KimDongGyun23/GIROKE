@@ -1,41 +1,22 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { FormProvider } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
+import { InputGroup } from '@/components/view/inputGroup'
+import { ModalCreate } from '@/components/view/modal/Modal'
+import { SubHeaderWithoutIcon } from '@/components/view/SubHeader'
+import { Tag } from '@/components/view/Tag'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useTermForm } from '@/hooks/useForms'
 import type { TermTagsType } from '@/types/term'
 import { TERM_TAGS } from '@/utils/constants'
 
-import { InputGroup } from '../view/inputGroup'
-import { ModalEdit } from '../view/modal/Modal'
-import { SubHeaderWithoutIcon } from '../view/SubHeader'
-import { Tag } from '../view/Tag'
-
-type TermEditData = {
-  id: number
-  name: string
-  description: string
-  tag: TermTagsType
-}
-
-const termEditData: TermEditData = {
-  id: 0,
-  name: 'DNS',
-  description:
-    '사용자에게 친숙한 도메인 이름을 컴퓨터가 네트워크에서 서로를 식별하는 데 사용하는 인터넷 프로토콜(IP) 주소로 변환하는 인터넷 표준 프로토콜의 구성 요소',
-  tag: '네트워크',
-}
-
-export const TermEdit = () => {
+export const TermCreate = () => {
   const navigate = useNavigate()
   const formMethod = useTermForm()
-
-  const { id, name, description, tag } = termEditData
   const { handleSubmit, setValue } = formMethod
-
+  const [selectedTag, setSelectedTag] = useState<TermTagsType | null>(null)
   const [modalState, openModal, closeModal] = useBoolean(false)
-  const [selectedTag, setSelectedTag] = useState<TermTagsType>(tag)
 
   const handleSubmitTermForm = () => {
     console.log('submit')
@@ -44,20 +25,14 @@ export const TermEdit = () => {
 
   const handleClickModalButton = () => {
     closeModal()
-    navigate(`/term/detail/${id}`, { replace: true })
+    navigate('/term/detail/0', { replace: true })
   }
-
-  useEffect(() => {
-    setValue('name', name)
-    setValue('tag', tag)
-    setValue('description', description)
-  }, [])
 
   return (
     <>
       <SubHeaderWithoutIcon
         type="complete"
-        title="용어 수정"
+        title="용어 추가"
         onClickText={handleSubmit(handleSubmitTermForm)}
       />
 
@@ -100,7 +75,7 @@ export const TermEdit = () => {
       </main>
 
       {modalState && (
-        <ModalEdit isOpen={modalState} closeModal={closeModal} onClick={handleClickModalButton} />
+        <ModalCreate isOpen={modalState} closeModal={closeModal} onClick={handleClickModalButton} />
       )}
     </>
   )

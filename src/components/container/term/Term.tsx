@@ -1,12 +1,11 @@
 import { useState } from 'react'
 
+import { TermItem } from '@/components/domain/TermItem'
+import { PostAdditionButton } from '@/components/view/PostAdditionButton'
+import { Search } from '@/components/view/Search'
+import { Tag } from '@/components/view/Tag'
 import type { TermItemType, TermTagsType } from '@/types/term'
 import { TERM_TAGS } from '@/utils/constants'
-
-import { TermItem } from '../domain/TermItem'
-import { PostAdditionButton } from '../view/PostAdditionButton'
-import { Search } from '../view/Search'
-import { Tag } from '../view/Tag'
 
 const termArr: TermItemType[] = [
   {

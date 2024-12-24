@@ -1,13 +1,12 @@
 import { useNavigate } from 'react-router-dom'
 
+import { ThumbIcon } from '@/components/view/icons/ActiveIcon'
+import { InputGroup } from '@/components/view/inputGroup'
+import { Kebab } from '@/components/view/Kebab'
+import { ModalDelete } from '@/components/view/modal/Modal'
+import { SubHeaderWithIcon } from '@/components/view/SubHeader'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useToggle } from '@/hooks/useToggle'
-
-import { ThumbIcon } from '../view/icons/ActiveIcon'
-import { InputGroup } from '../view/inputGroup'
-import { Kebab } from '../view/Kebab'
-import { ModalDelete } from '../view/modal/Modal'
-import { SubHeaderWithIcon } from '../view/SubHeader'
 
 const detailData = {
   id: 0,

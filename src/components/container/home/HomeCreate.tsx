@@ -1,8 +1,8 @@
 import { FormProvider, useForm } from 'react-hook-form'
 
-import { HomeCalender } from '../domain/HomeCalendar'
-import { InputGroup } from '../view/inputGroup'
-import { SubHeaderWithoutIcon } from '../view/SubHeader'
+import { HomeCalender } from '@/components/domain/HomeCalendar'
+import { InputGroup } from '@/components/view/inputGroup'
+import { SubHeaderWithoutIcon } from '@/components/view/SubHeader'
 
 export const HomeCreate = () => {
   const formMethod = useForm()
