@@ -8,7 +8,7 @@ import { Tag } from '@/components/view/Tag'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useToggle } from '@/hooks/useToggle'
 
-const detailData = {
+const mockTermDetail = {
   id: 0,
   title: 'DNS',
   tag: '네트워크',
@@ -19,20 +19,29 @@ const detailData = {
 
 export const TermDetail = () => {
   const navigate = useNavigate()
-  const { id, title, tag, createdAt, description } = detailData
-  const [kebabState, toggleKebabState] = useToggle(false)
-  const [modalState, openModal, closeModal] = useBoolean(false)
+  const [isKebabOpen, toggleKebab] = useToggle(false)
+  const [isModalOpen, openModal, closeModal] = useBoolean(false)
 
-  const kebabArr = [
-    { label: '수정', onClick: () => navigate(`/term/edit/${id}`) },
+  const { id, title, tag, createdAt, description } = mockTermDetail
+
+  const handleEdit = () => navigate(`/term/edit/${id}`)
+  const handleDelete = () => {
+    // 삭제 로직 구현
+    closeModal()
+  }
+
+  const kebabOptions = [
+    { label: '수정', onClick: handleEdit },
     { label: '삭제', onClick: openModal },
   ]
 
   return (
     <>
       <div>
-        <SubHeaderWithIcon type="kebab" title="" onClickIcon={toggleKebabState} />
-        {kebabState && <Kebab list={kebabArr} location="right-0 -translate-x-4" redIndex={1} />}
+        <SubHeaderWithIcon type="kebab" title="" onClickIcon={toggleKebab} />
+        {isKebabOpen && (
+          <Kebab list={kebabOptions} location="right-0 -translate-x-4" redIndex={1} />
+        )}
       </div>
 
       <main className="flex-column scroll grow px-4 pt-5">
@@ -54,12 +63,12 @@ export const TermDetail = () => {
 
       <BottomBookmark isActive />
 
-      {modalState && (
+      {isModalOpen && (
         <ModalDelete
-          isOpen={modalState}
+          isOpen={isModalOpen}
           closeModal={closeModal}
           leftButtonOnClick={closeModal}
-          rightButtonOnClick={() => {}}
+          rightButtonOnClick={handleDelete}
         />
       )}
     </>

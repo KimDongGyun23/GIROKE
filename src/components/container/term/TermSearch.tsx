@@ -8,7 +8,7 @@ import { Tag } from '@/components/view/Tag'
 import type { TermItemType, TermTagsType } from '@/types/term'
 import { TERM_TAGS } from '@/utils/constants'
 
-const termArr: TermItemType[] = [
+const mockTerms: TermItemType[] = [
   {
     id: 0,
     term: 'DNS',
@@ -55,13 +55,17 @@ const termArr: TermItemType[] = [
 
 export const TermSearch = () => {
   const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const searchName = searchParams.get('searchName')
-  const [activeSubject, setActiveSubject] = useState<TermTagsType>(TERM_TAGS[0])
+  const [searchParams] = useSearchParams()
+  const searchName = searchParams.get('searchName') || ''
+  const [activeTag, setActiveTag] = useState<TermTagsType>(TERM_TAGS[0])
+
+  const handleBackClick = () => navigate(-1)
+  const handleTagClick = (tag: TermTagsType) => setActiveTag(tag)
+
   return (
     <main className="flex-column mx-4 h-full pt-5">
       <header className="flex-align gap-4">
-        <button onClick={() => navigate(-1)}>
+        <button onClick={handleBackClick}>
           <BackArrowIcon />
         </button>
         <div className="grow">
@@ -70,20 +74,16 @@ export const TermSearch = () => {
       </header>
 
       <div className="scroll flex w-fit shrink-0 gap-2 overflow-x-scroll py-3">
-        {TERM_TAGS.map((subject: TermTagsType) => (
-          <Tag
-            key={subject}
-            secondary={activeSubject !== subject}
-            onClick={() => setActiveSubject(subject)}
-          >
-            {subject}
+        {TERM_TAGS.map((tag) => (
+          <Tag key={tag} secondary={activeTag !== tag} onClick={() => handleTagClick(tag)}>
+            {tag}
           </Tag>
         ))}
       </div>
 
       <section className="flex-column scroll grow">
-        {termArr.map((item) => (
-          <TermItem key={item.id} item={item} />
+        {mockTerms.map((term) => (
+          <TermItem key={term.id} term={term} />
         ))}
       </section>
     </main>

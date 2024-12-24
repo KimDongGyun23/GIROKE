@@ -69,7 +69,7 @@ export const BookmarkTerm = () => {
 
       <section className="flex-column scroll">
         {mockTerms.map((term) => (
-          <TermItem key={term.id} item={term} />
+          <TermItem key={term.id} term={term} />
         ))}
       </section>
     </>

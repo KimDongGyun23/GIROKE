@@ -7,7 +7,7 @@ import { Tag } from '@/components/view/Tag'
 import type { TermItemType, TermTagsType } from '@/types/term'
 import { TERM_TAGS } from '@/utils/constants'
 
-const termArr: TermItemType[] = [
+const mockTerms: TermItemType[] = [
   {
     id: 0,
     term: 'DNS',
@@ -55,25 +55,27 @@ const termArr: TermItemType[] = [
 export const Term = () => {
   const [activeTag, setActiveTag] = useState<TermTagsType>(TERM_TAGS[0])
 
+  const handleTagClick = (tag: TermTagsType) => setActiveTag(tag)
+
   return (
     <main className="flex-column mx-4 h-full">
       <Search tabName="term" />
 
       <div className="scroll flex w-fit shrink-0 gap-2 overflow-x-scroll py-3">
-        {TERM_TAGS.map((tag: TermTagsType) => (
-          <Tag key={tag} secondary={activeTag !== tag} onClick={() => setActiveTag(tag)}>
+        {TERM_TAGS.map((tag) => (
+          <Tag key={tag} secondary={activeTag !== tag} onClick={() => handleTagClick(tag)}>
             {tag}
           </Tag>
         ))}
       </div>
 
       <section className="flex-column scroll grow">
-        {termArr.map((item) => (
-          <TermItem key={item.id} item={item} />
+        {mockTerms.map((term) => (
+          <TermItem key={term.id} term={term} />
         ))}
       </section>
 
-      <PostAdditionButton to={'/term/create'} />
+      <PostAdditionButton to="/term/create" />
     </main>
   )
 }

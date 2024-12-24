@@ -16,16 +16,21 @@ export const TermCreate = () => {
   const formMethod = useTermForm()
   const { handleSubmit, setValue } = formMethod
   const [selectedTag, setSelectedTag] = useState<TermTagsType | null>(null)
-  const [modalState, openModal, closeModal] = useBoolean(false)
+  const [isModalOpen, openModal, closeModal] = useBoolean(false)
 
-  const handleSubmitTermForm = () => {
+  const handleFormSubmit = () => {
     console.log('submit')
     openModal()
   }
 
-  const handleClickModalButton = () => {
+  const handleModalConfirm = () => {
     closeModal()
     navigate('/term/detail/0', { replace: true })
+  }
+
+  const handleTagSelect = (tag: TermTagsType) => {
+    setSelectedTag(tag)
+    setValue('tag', tag)
   }
 
   return (
@@ -33,7 +38,7 @@ export const TermCreate = () => {
       <SubHeaderWithoutIcon
         type="complete"
         title="용어 추가"
-        onClickText={handleSubmit(handleSubmitTermForm)}
+        onClickText={handleSubmit(handleFormSubmit)}
       />
 
       <main className="scroll mx-4 py-5">
@@ -56,14 +61,11 @@ export const TermCreate = () => {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {TERM_TAGS.slice(1).map((tag: TermTagsType) => (
+                {TERM_TAGS.slice(1).map((tag) => (
                   <Tag
                     key={tag}
                     secondary={tag !== selectedTag}
-                    onClick={() => {
-                      setSelectedTag(tag)
-                      setValue('tag', tag)
-                    }}
+                    onClick={() => handleTagSelect(tag)}
                   >
                     {tag}
                   </Tag>
@@ -74,8 +76,8 @@ export const TermCreate = () => {
         </FormProvider>
       </main>
 
-      {modalState && (
-        <ModalCreate isOpen={modalState} closeModal={closeModal} onClick={handleClickModalButton} />
+      {isModalOpen && (
+        <ModalCreate isOpen={isModalOpen} closeModal={closeModal} onClick={handleModalConfirm} />
       )}
     </>
   )

@@ -7,10 +7,6 @@ export type TermItemType = {
   description: string
 }
 
-export type TermFormType = {
-  name: string
-  description: string
-  tag: string
-}
+export type TermFormType = Omit<TermItemType, 'id'>
 
 export type TermTagsType = (typeof TERM_TAGS)[number]
