@@ -7,6 +7,7 @@ import { Note } from '../container/Note'
 import { NoteCreate } from '../container/NoteCreate'
 import { NoteDetail } from '../container/NoteDetail'
 import { NoteEdit } from '../container/NoteEdit'
+import { NoteSearch } from '../container/NoteSearch'
 import { Project } from '../container/Project'
 import { ProjectCreate } from '../container/ProjectCreate'
 import { ProjectDetail } from '../container/ProjectDetail'
@@ -42,6 +43,7 @@ export const RouterComponent = () => {
       <Route path="/note/create" element={<NoteCreate />} />
       <Route path="/note/detail/:id" element={<NoteDetail />} />
       <Route path="/note/edit/:id" element={<NoteEdit />} />
+      <Route path="/note/search" element={<NoteSearch />} />
 
       <Route path="/bookmark" element={<div />} />
     </Routes>
