@@ -6,3 +6,12 @@ export type ProjectItemType = {
   startDate: string
   finishDate: string
 }
+
+export type ProjectDetailType = ProjectItemType & {
+  painstakingPart: string
+  likingPart: string
+  disappointingPart: string
+  reasonOfStack: string
+}
+
+export type ProjectFormType = ProjectDetailType
