@@ -1,53 +1,23 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { FormProvider } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import { useBoolean } from '@/hooks/useBoolean'
 import { useProjectForm } from '@/hooks/useForms'
-import type { ProjectDetailType } from '@/types/project'
 
 import { ThumbIcon } from '../view/icons/ActiveIcon'
 import { InputGroup } from '../view/inputGroup'
-import { ModalEdit } from '../view/modal/Modal'
+import { ModalCreate } from '../view/modal/Modal'
 import { SubHeaderWithoutIcon } from '../view/SubHeader'
 
-const projectEditData: ProjectDetailType = {
-  id: 0,
-  title: 'BROOM',
-  satisfaction: 2,
-  description: '광운대를 위한 예비군 종합 서비스',
-  startDate: '2024.12.24',
-  finishDate: '2024.12.24',
-  painstakingPart:
-    '공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분',
-  likingPart:
-    '공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분',
-  disappointingPart:
-    '공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분',
-  reasonOfStack:
-    '공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분',
-}
-
-export const ProjectEdit = () => {
+export const ProjectCreate = () => {
   const navigate = useNavigate()
   const formMethod = useProjectForm()
-  const {
-    id,
-    title,
-    description,
-    startDate,
-    finishDate,
-    satisfaction,
-    painstakingPart,
-    likingPart,
-    disappointingPart,
-    reasonOfStack,
-  } = projectEditData
 
   const { handleSubmit, setValue } = formMethod
 
   const [modalState, openModal, closeModal] = useBoolean(false)
-  const [selectedSatisfaction, setSelectedSatisfaction] = useState<number>(satisfaction)
+  const [selectedSatisfaction, setSelectedSatisfaction] = useState<number>(0)
 
   const handleSubmitProjectForm = () => {
     console.log('submit')
@@ -56,26 +26,14 @@ export const ProjectEdit = () => {
 
   const handleClickModalButton = () => {
     closeModal()
-    navigate(`/project/detail/${id}`, { replace: true })
+    navigate(`/project/detail/0`, { replace: true })
   }
-
-  useEffect(() => {
-    setValue('title', title)
-    setValue('description', description)
-    setValue('startDate', startDate)
-    setValue('finishDate', finishDate)
-    setValue('satisfaction', satisfaction)
-    setValue('painstakingPart', painstakingPart)
-    setValue('likingPart', likingPart)
-    setValue('disappointingPart', disappointingPart)
-    setValue('reasonOfStack', reasonOfStack)
-  }, [])
 
   return (
     <>
       <SubHeaderWithoutIcon
         type="complete"
-        title="프로젝트 수정"
+        title="프로젝트 추가"
         onClickText={handleSubmit(handleSubmitProjectForm)}
       />
 
@@ -160,7 +118,7 @@ export const ProjectEdit = () => {
       </main>
 
       {modalState && (
-        <ModalEdit isOpen={modalState} closeModal={closeModal} onClick={handleClickModalButton} />
+        <ModalCreate isOpen={modalState} closeModal={closeModal} onClick={handleClickModalButton} />
       )}
     </>
   )

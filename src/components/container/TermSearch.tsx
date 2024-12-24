@@ -6,7 +6,6 @@ import { CS_SUBJECT } from '@/utils/constants'
 
 import { TermItem } from '../domain/TermItem'
 import { BackArrowIcon } from '../view/icons/NonActiveIcon'
-import { PostAdditionButton } from '../view/PostAdditionButton'
 import { Search } from '../view/Search'
 import { Tag } from '../view/Tag'
 
@@ -67,7 +66,7 @@ export const TermSearch = () => {
           <BackArrowIcon />
         </button>
         <div className="grow">
-          <Search initialValue={searchName} />
+          <Search initialValue={searchName} tabName="term" />
         </div>
       </header>
 
@@ -88,8 +87,6 @@ export const TermSearch = () => {
           <TermItem key={item.id} item={item} />
         ))}
       </section>
-
-      <PostAdditionButton to={'/term/create'} />
     </main>
   )
 }

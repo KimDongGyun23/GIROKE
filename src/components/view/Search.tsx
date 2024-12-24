@@ -5,13 +5,14 @@ import { SearchIcon } from './icons/NonActiveIcon'
 
 type SearchProps = {
   initialValue?: string | null
+  tabName: string
 }
 
-export const Search = ({ initialValue }: SearchProps) => {
+export const Search = ({ initialValue, tabName }: SearchProps) => {
   const navigate = useNavigate()
   const [searchName, setSearchName] = useState(initialValue || '')
   const handleClickSearchButton = () => {
-    navigate(`/term/search?searchName=${searchName}`)
+    navigate(`/${tabName}/search?searchName=${searchName}`)
   }
 
   return (

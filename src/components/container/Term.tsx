@@ -58,7 +58,7 @@ export const Term = () => {
 
   return (
     <main className="flex-column mx-4 h-full">
-      <Search />
+      <Search tabName="term" />
 
       <div className="scroll flex w-fit shrink-0 gap-2 overflow-x-scroll py-3">
         {[...CS_SUBJECT, '전체' as const].map((subject: CSSubjectType) => (

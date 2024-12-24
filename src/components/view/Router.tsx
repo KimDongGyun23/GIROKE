@@ -4,8 +4,10 @@ import { Home } from '../container/Home'
 import { HomeCreate } from '../container/HomeCreate'
 import { HomeEdit } from '../container/HomeEdit'
 import { Project } from '../container/Project'
+import { ProjectCreate } from '../container/ProjectCreate'
 import { ProjectDetail } from '../container/ProjectDetail'
 import { ProjectEdit } from '../container/ProjectEdit'
+import { ProjectSearch } from '../container/ProjectSearch'
 import { Term } from '../container/Term'
 import { TermCreate } from '../container/TermCreate'
 import { TermDetail } from '../container/TermDetail'
@@ -29,8 +31,10 @@ export const RouterComponent = () => {
       <Route path="/term/edit/:id" element={<TermEdit />} />
 
       <Route path="/project" element={<Project />} />
+      <Route path="/project/create" element={<ProjectCreate />} />
       <Route path="/project/detail/:id" element={<ProjectDetail />} />
       <Route path="/project/edit/:id" element={<ProjectEdit />} />
+      <Route path="/project/search" element={<ProjectSearch />} />
 
       <Route path="/bookmark" element={<div />} />
     </Routes>
