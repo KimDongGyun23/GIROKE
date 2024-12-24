@@ -32,7 +32,7 @@ export const NoteDetail = () => {
     closeModal()
   }
 
-  const kebabArr = [
+  const kebabOptions = [
     { label: '수정', onClick: handleEdit },
     { label: '삭제', onClick: openModal },
   ]
@@ -41,7 +41,9 @@ export const NoteDetail = () => {
     <>
       <div>
         <SubHeaderWithIcon type="kebab" title="" onClickIcon={toggleKebabState} />
-        {isKebabOpen && <Kebab list={kebabArr} location="right-0 -translate-x-4" redIndex={1} />}
+        {isKebabOpen && (
+          <Kebab list={kebabOptions} location="right-0 -translate-x-4" redIndex={1} />
+        )}
       </div>
 
       <main className="flex-column scroll grow px-4 pt-5">

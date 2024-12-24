@@ -10,7 +10,7 @@ import { useBoolean } from '@/hooks/useBoolean'
 import { useProjectForm } from '@/hooks/useForms'
 import type { ProjectDetailType } from '@/types/project'
 
-const projectEditData: ProjectDetailType = {
+const mockProjectData: ProjectDetailType = {
   id: 0,
   title: 'BROOM',
   satisfaction: 2,
@@ -27,64 +27,85 @@ const projectEditData: ProjectDetailType = {
     '공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분',
 }
 
+const inputFields = [
+  { section: 'title', label: '프로젝트 이름', placeholder: '프로젝트 이름을 입력해주세요.' },
+  { section: 'description', label: '한줄 설명', placeholder: '한줄 설명을 입력해주세요.' },
+  {
+    section: 'painstakingPart',
+    label: '공들인 부분',
+    placeholder: '공들인 부분을 입력해주세요.',
+    isTextArea: true,
+  },
+  {
+    section: 'likingPart',
+    label: '좋았던 부분',
+    placeholder: '좋았던 부분을 입력해주세요.',
+    isTextArea: true,
+  },
+  {
+    section: 'disappointingPart',
+    label: '아쉬운 부분',
+    placeholder: '아쉬운 부분을 입력해주세요.',
+    isTextArea: true,
+  },
+  {
+    section: 'reasonOfStack',
+    label: '사용한 기술들을 선택한 이유',
+    placeholder: '기술들을 선택한 이유를 입력해주세요.',
+    isTextArea: true,
+  },
+]
+
 export const ProjectEdit = () => {
   const navigate = useNavigate()
   const formMethod = useProjectForm()
-  const {
-    id,
-    title,
-    description,
-    startDate,
-    finishDate,
-    satisfaction,
-    painstakingPart,
-    likingPart,
-    disappointingPart,
-    reasonOfStack,
-  } = projectEditData
-
   const { handleSubmit, setValue } = formMethod
 
-  const [modalState, openModal, closeModal] = useBoolean(false)
-  const [selectedSatisfaction, setSelectedSatisfaction] = useState<number>(satisfaction)
+  const [isModalOpen, openModal, closeModal] = useBoolean(false)
+  const [satisfaction, setSatisfaction] = useState<number>(mockProjectData.satisfaction)
 
-  const handleSubmitProjectForm = () => {
+  const handleFormSubmit = () => {
     console.log('submit')
     openModal()
   }
 
-  const handleClickModalButton = () => {
+  const handleModalConfirm = () => {
     closeModal()
-    navigate(`/project/detail/${id}`, { replace: true })
+    navigate(`/project/detail/${mockProjectData.id}`, { replace: true })
+  }
+
+  const handleSatisfactionChange = (value: number) => {
+    setSatisfaction(value)
+    setValue('satisfaction', value)
   }
 
   useEffect(() => {
-    setValue('title', title)
-    setValue('description', description)
-    setValue('startDate', startDate)
-    setValue('finishDate', finishDate)
-    setValue('satisfaction', satisfaction)
-    setValue('painstakingPart', painstakingPart)
-    setValue('likingPart', likingPart)
-    setValue('disappointingPart', disappointingPart)
-    setValue('reasonOfStack', reasonOfStack)
-  }, [])
+    Object.entries(mockProjectData).forEach(([key, value]) => {
+      setValue(key as keyof Omit<ProjectDetailType, 'id'>, value)
+    })
+  }, [setValue])
 
   return (
     <>
       <SubHeaderWithoutIcon
         type="complete"
         title="프로젝트 수정"
-        onClickText={handleSubmit(handleSubmitProjectForm)}
+        onClickText={handleSubmit(handleFormSubmit)}
       />
 
       <main className="scroll mx-4 py-5">
         <FormProvider {...formMethod}>
           <form className="flex-column gap-5">
-            <InputGroup>
-              <InputGroup.Label section="title">프로젝트 이름</InputGroup.Label>
-              <InputGroup.Input section="title" placeholder="프로젝트 이름을 입력해주세요." />
-            </InputGroup>
+            {inputFields.map(({ section, label, placeholder, isTextArea }) => (
+              <InputGroup key={section}>
+                <InputGroup.Label section={section}>{label}</InputGroup.Label>
+                {isTextArea ? (
+                  <InputGroup.TextArea section={section} placeholder={placeholder} />
+                ) : (
+                  <InputGroup.Input section={section} placeholder={placeholder} />
+                )}
+              </InputGroup>
+            ))}
 
             <InputGroup>
               <InputGroup.Label section="title">프로젝트 기간</InputGroup.Label>
@@ -95,60 +116,16 @@ export const ProjectEdit = () => {
             </InputGroup>
 
             <InputGroup>
-              <InputGroup.Label section="description">한줄 설명</InputGroup.Label>
-              <InputGroup.Input section="description" placeholder="한줄 설명을 입력해주세요." />
-            </InputGroup>
-
-            <InputGroup>
-              <InputGroup.Label section="painstakingPart">공들인 부분</InputGroup.Label>
-              <InputGroup.TextArea
-                section="painstakingPart"
-                placeholder="공들인 부분을 입력해주세요."
-              />
-            </InputGroup>
-
-            <InputGroup>
-              <InputGroup.Label section="painstakingPart">좋았던 부분</InputGroup.Label>
-              <InputGroup.TextArea
-                section="painstakingPart"
-                placeholder="좋았던 부분을 입력해주세요."
-              />
-            </InputGroup>
-            <InputGroup>
-              <InputGroup.Label section="likingPart">아쉬운 부분</InputGroup.Label>
-              <InputGroup.TextArea section="likingPart" placeholder="아쉬운 부분을 입력해주세요." />
-            </InputGroup>
-            <InputGroup>
-              <InputGroup.Label section="disappointingPart">
-                사용한 기술들을 선택한 이유
-              </InputGroup.Label>
-              <InputGroup.TextArea
-                section="disappointingPart"
-                placeholder="기술들을 선택한 이유를 입력해주세요."
-              />
-            </InputGroup>
-            <InputGroup>
-              <InputGroup.Label section="reasonOfStack">공들인 부분</InputGroup.Label>
-              <InputGroup.TextArea
-                section="reasonOfStack"
-                placeholder="공들인 부분을 입력해주세요."
-              />
-            </InputGroup>
-
-            <InputGroup>
               <div className="flex-between items-end">
                 <InputGroup.Label section="tag">만족도</InputGroup.Label>
-
                 <div className="flex flex-wrap gap-2">
-                  {[...Array(3)].map((_, index) => (
+                  {[1, 2, 3].map((value) => (
                     <button
-                      key={index}
-                      onClick={() => {
-                        setSelectedSatisfaction(index + 1)
-                        setValue('satisfaction', index + 1)
-                      }}
+                      key={value}
+                      onClick={() => handleSatisfactionChange(value)}
+                      type="button"
                     >
-                      <ThumbIcon active={index < selectedSatisfaction} />
+                      <ThumbIcon active={value <= satisfaction} />
                     </button>
                   ))}
                 </div>
@@ -158,8 +135,8 @@ export const ProjectEdit = () => {
         </FormProvider>
       </main>
 
-      {modalState && (
-        <ModalEdit isOpen={modalState} closeModal={closeModal} onClick={handleClickModalButton} />
+      {isModalOpen && (
+        <ModalEdit isOpen={isModalOpen} closeModal={closeModal} onClick={handleModalConfirm} />
       )}
     </>
   )

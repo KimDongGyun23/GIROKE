@@ -1,3 +1,7 @@
+import type { PROJECT_TAGS } from '@/utils/constants'
+
+export type ProjectTagType = (typeof PROJECT_TAGS)[number]
+
 export type ProjectItemType = {
   id: number
   title: string
@@ -14,4 +18,4 @@ export type ProjectDetailType = ProjectItemType & {
   reasonOfStack: string
 }
 
-export type ProjectFormType = ProjectDetailType
+export type ProjectFormType = Omit<ProjectDetailType, 'id'>

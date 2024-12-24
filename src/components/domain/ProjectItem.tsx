@@ -5,11 +5,11 @@ import type { ProjectItemType } from '@/types/project'
 import { ThumbIcon } from '../view/icons/ActiveIcon'
 
 type ProjectItemProps = {
-  item: ProjectItemType
+  project: ProjectItemType
 }
 
-export const ProjectItem = ({ item }: ProjectItemProps) => {
-  const { id, title, description, startDate, finishDate, satisfaction } = item
+export const ProjectItem = ({ project }: ProjectItemProps) => {
+  const { id, title, description, startDate, finishDate, satisfaction } = project
   return (
     <Link
       to={`/project/detail/${id}`}
