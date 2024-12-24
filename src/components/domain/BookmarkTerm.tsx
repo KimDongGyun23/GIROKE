@@ -3,10 +3,9 @@ import { useState } from 'react'
 import type { TermItemType, TermTagsType } from '@/types/term'
 import { TERM_TAGS } from '@/utils/constants'
 
-import { TermItem } from '../domain/TermItem'
-import { PostAdditionButton } from '../view/PostAdditionButton'
-import { Search } from '../view/Search'
 import { Tag } from '../view/Tag'
+
+import { TermItem } from './TermItem'
 
 const termArr: TermItemType[] = [
   {
@@ -53,13 +52,10 @@ const termArr: TermItemType[] = [
   },
 ]
 
-export const Term = () => {
+export const BookmarkTerm = () => {
   const [activeTag, setActiveTag] = useState<TermTagsType>(TERM_TAGS[0])
-
   return (
-    <main className="flex-column mx-4 h-full">
-      <Search tabName="term" />
-
+    <>
       <div className="scroll flex w-fit shrink-0 gap-2 overflow-x-scroll py-3">
         {TERM_TAGS.map((tag: TermTagsType) => (
           <Tag key={tag} secondary={activeTag !== tag} onClick={() => setActiveTag(tag)}>
@@ -68,13 +64,11 @@ export const Term = () => {
         ))}
       </div>
 
-      <section className="flex-column scroll grow">
+      <section className="flex-column scroll">
         {termArr.map((item) => (
           <TermItem key={item.id} item={item} />
         ))}
       </section>
-
-      <PostAdditionButton to={'/term/create'} />
-    </main>
+    </>
   )
 }

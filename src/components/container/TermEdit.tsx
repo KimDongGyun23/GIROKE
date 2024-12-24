@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom'
 
 import { useBoolean } from '@/hooks/useBoolean'
 import { useTermForm } from '@/hooks/useForms'
-import type { CSSubjectType } from '@/types/common'
-import { CS_SUBJECT } from '@/utils/constants'
+import type { TermTagsType } from '@/types/term'
+import { TERM_TAGS } from '@/utils/constants'
 
 import { InputGroup } from '../view/inputGroup'
 import { ModalEdit } from '../view/modal/Modal'
@@ -16,7 +16,7 @@ type TermEditData = {
   id: number
   name: string
   description: string
-  tag: CSSubjectType
+  tag: TermTagsType
 }
 
 const termEditData: TermEditData = {
@@ -35,7 +35,7 @@ export const TermEdit = () => {
   const { handleSubmit, setValue } = formMethod
 
   const [modalState, openModal, closeModal] = useBoolean(false)
-  const [selectedSubject, setSelectedSubject] = useState<CSSubjectType>(tag)
+  const [selectedTag, setSelectedTag] = useState<TermTagsType>(tag)
 
   const handleSubmitTermForm = () => {
     console.log('submit')
@@ -81,16 +81,16 @@ export const TermEdit = () => {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {CS_SUBJECT.map((subject: CSSubjectType) => (
+                {TERM_TAGS.slice(1).map((tag: TermTagsType) => (
                   <Tag
-                    key={subject}
-                    secondary={subject !== selectedSubject}
+                    key={tag}
+                    secondary={tag !== selectedTag}
                     onClick={() => {
-                      setSelectedSubject(subject)
-                      setValue('tag', subject)
+                      setSelectedTag(tag)
+                      setValue('tag', tag)
                     }}
                   >
-                    {subject}
+                    {tag}
                   </Tag>
                 ))}
               </div>

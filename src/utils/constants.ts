@@ -1,4 +1,5 @@
-export const CS_SUBJECT = [
+export const TERM_TAGS = [
+  '전체',
   '네트워크',
   '데이터베이스',
   '자료구조',

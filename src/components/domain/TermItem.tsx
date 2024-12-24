@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-import type { TermItemType } from '@/types/common'
+import type { TermItemType } from '@/types/term'
 
 import { Tag } from '../view/Tag'
 

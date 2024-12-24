@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
-import type { CSSubjectType, TermItemType } from '@/types/common'
-import { CS_SUBJECT } from '@/utils/constants'
+import type { TermItemType, TermTagsType } from '@/types/term'
+import { TERM_TAGS } from '@/utils/constants'
 
 import { TermItem } from '../domain/TermItem'
 import { BackArrowIcon } from '../view/icons/NonActiveIcon'
@@ -58,7 +58,7 @@ export const TermSearch = () => {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const searchName = searchParams.get('searchName')
-  const [activeSubject, setActiveSubject] = useState<CSSubjectType | '전체'>(CS_SUBJECT[0])
+  const [activeSubject, setActiveSubject] = useState<TermTagsType>(TERM_TAGS[0])
   return (
     <main className="flex-column mx-4 h-full pt-5">
       <header className="flex-align gap-4">
@@ -71,7 +71,7 @@ export const TermSearch = () => {
       </header>
 
       <div className="scroll flex w-fit shrink-0 gap-2 overflow-x-scroll py-3">
-        {[...CS_SUBJECT, '전체' as const].map((subject: CSSubjectType) => (
+        {TERM_TAGS.map((subject: TermTagsType) => (
           <Tag
             key={subject}
             secondary={activeSubject !== subject}
