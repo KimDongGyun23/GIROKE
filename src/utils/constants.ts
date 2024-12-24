@@ -6,3 +6,5 @@ export const CS_SUBJECT = [
   '운영체제',
   '컴퓨터구조',
 ] as const
+
+export const PROJECT_TAGS = ['전체', '원따봉', '쌍따봉', '트리플따봉'] as const
