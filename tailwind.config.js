@@ -12,6 +12,9 @@ export default {
       lg: '0px 4px 4px 0px rgba(0, 0, 0, 0.25), 0px -2px 4px 0px rgba(0, 0, 0, 0.15)',
     },
     extend: {
+      fontFamily: {
+        jalnan: ['Jalnan'],
+      },
       colors: {
         green: {
           1: '#DCF8DB',
