@@ -92,7 +92,7 @@ export const useLoginForm = () => {
 }
 
 const homeSchema = z.object({
-  title: z.string().min(1, { message: '제목을 입력해주세요.' }),
+  todo: z.string().min(1, { message: '할 일을 입력해주세요.' }),
   date: z.date(),
 })
 
