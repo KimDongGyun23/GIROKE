@@ -2,7 +2,11 @@ import { useState } from 'react'
 import type { SubmitHandler } from 'react-hook-form'
 import { FormProvider } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import { signInWithEmailAndPassword } from 'firebase/auth'
+import {
+  browserSessionPersistence,
+  setPersistence,
+  signInWithEmailAndPassword,
+} from 'firebase/auth'
 
 import { Button } from '@/components/view/Button'
 import { InputGroup } from '@/components/view/inputGroup'
@@ -16,14 +20,17 @@ export const Login = () => {
   const { handleSubmit } = formMethod
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  const handleFormSubmit: SubmitHandler<LoginFormType> = async (formData) => {
-    try {
-      await signInWithEmailAndPassword(auth, formData.id, formData.password)
-      navigate('/home', { replace: true })
-      setErrorMessage(null)
-    } catch {
-      setErrorMessage('아이디와 비밀번호를 확인해주세요.')
-    }
+  const handleFormSubmit: SubmitHandler<LoginFormType> = (formData) => {
+    setPersistence(auth, browserSessionPersistence)
+      .then(() => {
+        signInWithEmailAndPassword(auth, formData.id, formData.password).then(() => {
+          navigate('/home', { replace: true })
+          setErrorMessage(null)
+        })
+      })
+      .catch(() => {
+        setErrorMessage('* 아이디와 비밀번호를 확인해주세요.')
+      })
   }
 
   return (
@@ -44,7 +51,7 @@ export const Login = () => {
               <InputGroup.Label section="password">비밀번호</InputGroup.Label>
               <InputGroup.Input section="password" placeholder="비밀번호를 입력해주세요." />
             </InputGroup>
-            <p className="p-small font-medium text-error">* {errorMessage}</p>
+            <p className="p-small font-medium text-error">{errorMessage}</p>
           </div>
 
           <Button type="submit" size="md">
