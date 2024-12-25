@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 
 import type { LoginFormType } from '@/types/common'
+import type { HomeFormType } from '@/types/home'
 import type { NoteFormType } from '@/types/note'
 import type { ProjectFormType } from '@/types/project'
 import type { TermFormType } from '@/types/term'
@@ -85,6 +86,21 @@ export const useLoginForm = () => {
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
     resolver: zodResolver(loginSchema),
+  })
+
+  return formMethod
+}
+
+const homeSchema = z.object({
+  title: z.string().min(1, { message: '제목을 입력해주세요.' }),
+  date: z.date(),
+})
+
+export const useHomeForm = () => {
+  const formMethod = useForm<HomeFormType>({
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
+    resolver: zodResolver(homeSchema),
   })
 
   return formMethod

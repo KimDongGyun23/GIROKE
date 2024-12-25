@@ -26,7 +26,7 @@ const App = () => {
   return (
     <div className="flex-center">
       <div className="scroll flex-column relative h-svh w-full min-w-[320px] max-w-[450px] border-x">
-        {matchedNavUrl && <h1 className="font-jalnan px-4 py-6 font-bold text-green-6">기로케</h1>}
+        {matchedNavUrl && <h1 className="px-4 py-6 font-jalnan font-bold text-green-6">기로케</h1>}
         <div className="scroll flex-column grow">
           <RouterComponent />
         </div>

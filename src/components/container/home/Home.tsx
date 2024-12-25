@@ -4,9 +4,7 @@ import dayjs from 'dayjs'
 
 import { HomeCalender } from '@/components/domain/HomeCalendar'
 import { TodoItem } from '@/components/domain/TodoItem'
-
-type ValuePiece = Date | null
-type Value = ValuePiece | [ValuePiece, ValuePiece]
+import type { CalendarValue } from '@/types/common'
 
 const scheduledDates = [
   new Date('2024-12-13'),
@@ -21,7 +19,7 @@ const mockTodoList = [
 ]
 
 export const Home = () => {
-  const [selectedDate, setSelectedDate] = useState<Value>(new Date())
+  const [selectedDate, setSelectedDate] = useState<CalendarValue>(new Date())
 
   const isDateMarked = (date: Date) =>
     scheduledDates.some(

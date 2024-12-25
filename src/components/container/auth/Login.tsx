@@ -29,7 +29,7 @@ export const Login = () => {
   return (
     <div className="flex-column h-full justify-center">
       <FormProvider {...formMethod}>
-        <h1 className="font-jalnan pb-24 pt-10 text-center text-6xl font-bold text-green-6">
+        <h1 className="pb-24 pt-10 text-center font-jalnan text-6xl font-bold text-green-6">
           기로케
         </h1>
 
