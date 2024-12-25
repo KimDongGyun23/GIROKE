@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { Button } from '@/components/view/Button'
 import { InputGroup } from '@/components/view/inputGroup'
-import { ModalCreate } from '@/components/view/modal/Modal'
+import { ModalEdit } from '@/components/view/modal/Modal'
 import { SubHeaderWithoutIcon } from '@/components/view/SubHeader'
 import { Tag } from '@/components/view/Tag'
 import { useBoolean } from '@/hooks/useBoolean'
@@ -122,7 +122,7 @@ export const NoteEdit = () => {
       </main>
 
       {isModalOpen && (
-        <ModalCreate isOpen={isModalOpen} closeModal={closeModal} onClick={handleModalConfirm} />
+        <ModalEdit isOpen={isModalOpen} closeModal={closeModal} onClick={handleModalConfirm} />
       )}
     </>
   )
