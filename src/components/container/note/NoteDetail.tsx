@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { deleteDoc, doc, getDoc } from 'firebase/firestore'
+import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore'
 
+import { BottomBookmark } from '@/components/view/BottomBookmark'
 import { InputGroup } from '@/components/view/inputGroup'
 import { Kebab } from '@/components/view/Kebab'
 import { ModalDelete } from '@/components/view/modal/Modal'
@@ -64,6 +65,30 @@ export const NoteDetail = () => {
     }
   }
 
+  const handleBookmarkToggle = async () => {
+    if (!note || !id) return
+
+    try {
+      const userId = auth.currentUser?.uid
+      if (!userId) {
+        console.error('User not authenticated')
+        return
+      }
+
+      const noteRef = doc(db, 'users', userId, 'notes', id)
+      const newBookmarkStatus = !note.isBookmarked
+
+      await updateDoc(noteRef, { isBookmarked: newBookmarkStatus })
+
+      setNote((prevNote) => ({
+        ...prevNote!,
+        isBookmarked: newBookmarkStatus,
+      }))
+    } catch (error) {
+      console.error('Error toggling bookmark: ', error)
+    }
+  }
+
   const kebabOptions = [
     { label: '수정', onClick: handleEdit },
     { label: '삭제', onClick: openModal },
@@ -104,6 +129,8 @@ export const NoteDetail = () => {
           ))}
         </section>
       </main>
+
+      <BottomBookmark isActive={note.isBookmarked} onToggleBookmark={handleBookmarkToggle} />
 
       {isModalOpen && (
         <ModalDelete

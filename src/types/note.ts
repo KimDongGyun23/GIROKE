@@ -7,6 +7,7 @@ export type NoteItemType = {
   title: string
   createdAt: string
   tag: NoteTagType
+  isBookmarked: boolean
 }
 
 type ParagraphType = {
@@ -25,5 +26,6 @@ export type NotedDetailType = {
   title: string
   createdAt: string
   tag: NoteTagType
+  isBookmarked: boolean
   paragraphs: ParagraphType[]
 }

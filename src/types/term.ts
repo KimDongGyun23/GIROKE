@@ -6,6 +6,7 @@ export type TermItemType = {
   tag: TermTagsType
   createdAt: string
   description: string
+  isBookmarked: boolean
 }
 
 export type TermFormType = Omit<TermItemType, 'id'>
