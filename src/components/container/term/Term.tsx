@@ -4,6 +4,8 @@ import type { CollectionReference, DocumentData } from 'firebase/firestore'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 
 import { TermItem } from '@/components/domain/TermItem'
+import { EmptyMessage } from '@/components/view/ErrorMessage'
+import { Loading } from '@/components/view/Loading'
 import { PostAdditionButton } from '@/components/view/PostAdditionButton'
 import { Search } from '@/components/view/Search'
 import { Tag } from '@/components/view/Tag'
@@ -55,6 +57,7 @@ export const Term = () => {
             tag: data.tag as TermTagsType,
             createdAt: data.createdAt,
             description: data.description as string,
+            isBookmarked: data.isBookmarked,
           }
         })
         setTerms(fetchedTerms)
@@ -84,11 +87,11 @@ export const Term = () => {
 
       <section className="flex-column scroll grow">
         {loading ? (
-          <p>Loading...</p>
+          <Loading />
         ) : terms.length > 0 ? (
           terms.map((term) => <TermItem key={term.id} term={term} />)
         ) : (
-          <p>새로운 용어를 등록해주세요.</p>
+          <EmptyMessage>새로운 용어를 등록해주세요.</EmptyMessage>
         )}
       </section>
 

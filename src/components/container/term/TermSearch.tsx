@@ -4,7 +4,9 @@ import type { CollectionReference, DocumentData } from 'firebase/firestore'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 
 import { TermItem } from '@/components/domain/TermItem'
+import { EmptyMessage } from '@/components/view/ErrorMessage'
 import { BackArrowIcon } from '@/components/view/icons/NonActiveIcon'
+import { Loading } from '@/components/view/Loading'
 import { Search } from '@/components/view/Search'
 import { Tag } from '@/components/view/Tag'
 import { auth, db } from '@/firebase/firebase'
@@ -80,11 +82,11 @@ export const TermSearch = () => {
 
       <section className="flex-column scroll grow">
         {loading ? (
-          <p>Loading...</p>
+          <Loading />
         ) : terms.length > 0 ? (
           terms.map((term) => <TermItem key={term.id} term={term} />)
         ) : (
-          <p>No terms found.</p>
+          <EmptyMessage>해당하는 용어가 존재하지 않습니다.</EmptyMessage>
         )}
       </section>
     </main>

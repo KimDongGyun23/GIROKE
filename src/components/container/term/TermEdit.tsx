@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 
 import { InputGroup } from '@/components/view/inputGroup'
+import { Loading } from '@/components/view/Loading'
 import { ModalEdit } from '@/components/view/modal/Modal'
 import { SubHeaderWithoutIcon } from '@/components/view/SubHeader'
 import { Tag } from '@/components/view/Tag'
@@ -80,7 +81,7 @@ export const TermEdit = () => {
   }
 
   if (loading) {
-    return <div>Loading...</div>
+    return <Loading />
   }
 
   return (

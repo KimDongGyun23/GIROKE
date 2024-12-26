@@ -3,7 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore'
 
 import { BottomBookmark } from '@/components/view/BottomBookmark'
+import { ErrorMessage } from '@/components/view/ErrorMessage'
 import { Kebab } from '@/components/view/Kebab'
+import { Loading } from '@/components/view/Loading'
 import { ModalDelete } from '@/components/view/modal/Modal'
 import { SubHeaderWithIcon } from '@/components/view/SubHeader'
 import { Tag } from '@/components/view/Tag'
@@ -101,11 +103,11 @@ export const TermDetail = () => {
   ]
 
   if (loading) {
-    return <div>Loading...</div>
+    return <Loading />
   }
 
   if (!term) {
-    return <div>Term not found</div>
+    return <ErrorMessage>{'해당 용어가 존재하지 않습니다.'}</ErrorMessage>
   }
 
   return (
