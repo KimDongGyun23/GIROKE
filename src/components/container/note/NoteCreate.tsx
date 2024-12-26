@@ -1,39 +1,72 @@
 import { useState } from 'react'
 import React from 'react'
-import { FormProvider } from 'react-hook-form'
+import { FormProvider, useFieldArray } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
+import { collection, doc, setDoc } from 'firebase/firestore'
+import { v4 as uuidv4 } from 'uuid'
 
 import { Button } from '@/components/view/Button'
 import { InputGroup } from '@/components/view/inputGroup'
 import { ModalCreate } from '@/components/view/modal/Modal'
 import { SubHeaderWithoutIcon } from '@/components/view/SubHeader'
 import { Tag } from '@/components/view/Tag'
+import { auth, db } from '@/firebase/firebase'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useNoteForm } from '@/hooks/useForms'
-import type { NoteTagType } from '@/types/note'
+import type { NoteFormType, NoteTagType } from '@/types/note'
 import { NOTE_TAGS } from '@/utils/constants'
+import { formatDate } from '@/utils/formatDate'
 
 export const NoteCreate = () => {
   const navigate = useNavigate()
   const formMethod = useNoteForm()
-  const { handleSubmit, setValue } = formMethod
+  const { handleSubmit, setValue, control } = formMethod
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'paragraphs',
+  })
 
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
-  const [paragraphCount, setParagraphCount] = useState<number>(1)
   const [selectedTag, setSelectedTag] = useState<NoteTagType>(NOTE_TAGS[0])
+  const [newNoteId, setNewNoteId] = useState<string | null>(null)
 
-  const handleFormSubmit = () => {
-    console.log('submit')
-    openModal()
+  const handleFormSubmit = async (data: NoteFormType) => {
+    try {
+      console.log(data)
+      const userId = auth.currentUser?.uid
+      if (!userId) {
+        console.error('User not authenticated')
+        return
+      }
+
+      const newNoteId = uuidv4()
+      const userNotesRef = collection(db, 'users', userId, 'notes')
+      const newNoteDocRef = doc(userNotesRef, newNoteId)
+
+      await setDoc(newNoteDocRef, {
+        id: newNoteId,
+        tag: selectedTag,
+        title: data.title,
+        paragraphs: data.paragraphs,
+        createdAt: formatDate(new Date(), 'dotted'),
+      })
+
+      setNewNoteId(newNoteId)
+      openModal()
+    } catch (error) {
+      console.error('Error creating note: ', error)
+    }
   }
 
   const handleModalConfirm = () => {
     closeModal()
-    navigate(`/note/detail/0`, { replace: true })
+    if (newNoteId) {
+      navigate(`/note/detail/${newNoteId}`, { replace: true })
+    }
   }
 
-  const addParagraph = () => setParagraphCount((prev) => prev + 1)
-  const removeParagraph = () => setParagraphCount((prev) => Math.max(1, prev - 1))
+  const addParagraph = () => append({ subTitle: '', content: '' })
+  const removeParagraph = () => remove(fields.length - 1)
 
   const handleTagSelect = (tag: NoteTagType) => {
     setSelectedTag(tag)
@@ -57,10 +90,7 @@ export const NoteCreate = () => {
             </InputGroup>
 
             <InputGroup>
-              <div className="flex-between items-end">
-                <InputGroup.Label section="tag">태그 선택</InputGroup.Label>
-                <p className="p-xsmall text-grey-6">* 최대 2개 선택 가능</p>
-              </div>
+              <InputGroup.Label section="tag">태그 선택</InputGroup.Label>
               <div className="flex flex-wrap gap-2">
                 {NOTE_TAGS.slice(1).map((tag: NoteTagType) => (
                   <Tag
@@ -74,18 +104,22 @@ export const NoteCreate = () => {
               </div>
             </InputGroup>
 
-            {[...Array(paragraphCount)].map((_, index) => (
-              <React.Fragment key={index}>
+            {fields.map((field, index) => (
+              <React.Fragment key={field.id}>
                 <InputGroup>
-                  <InputGroup.Label section={`subTitle${index}`}>단락 제목</InputGroup.Label>
+                  <InputGroup.Label section={`paragraphs.${index}.subTitle`}>
+                    단락 제목
+                  </InputGroup.Label>
                   <InputGroup.Input
-                    section={`subTitle${index}`}
+                    section={`paragraphs.${index}.subTitle`}
                     placeholder="단락 제목을 입력해주세요."
                   />
                 </InputGroup>
-                <InputGroup.Label section={`content${index}`}>단락 내용</InputGroup.Label>
+                <InputGroup.Label section={`paragraphs.${index}.content`}>
+                  단락 내용
+                </InputGroup.Label>
                 <InputGroup.TextArea
-                  section={`content${index}`}
+                  section={`paragraphs.${index}.content`}
                   placeholder="단락 내용을 입력해주세요."
                 />
               </React.Fragment>
