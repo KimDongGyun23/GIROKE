@@ -64,17 +64,14 @@ export const createTerm = async (formData: TermFormType) => {
   return newTermId
 }
 
-export const fetchTermDetail = async (termId: string) => {
-  const userId = auth.currentUser?.uid
-  if (!userId) throw new Error('사용자가 인증되지 않았습니다.')
-
+export const fetchTermDetail = async (userId: string, termId: string) => {
   const termDocRef = doc(db, 'users', userId, 'terms', termId)
   const termDoc = await getDoc(termDocRef)
 
   if (termDoc.exists()) {
     return { id: termDoc.id, ...termDoc.data() } as TermItemType
   } else {
-    throw new Error('Term not found')
+    throw new Error('해당하는 용어가 존재하지 않습니다.')
   }
 }
 

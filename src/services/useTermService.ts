@@ -1,6 +1,9 @@
+import type { Dispatch, SetStateAction } from 'react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { auth } from '@/firebase/firebase'
+import { useAuthState } from '@/hooks/useAuthState'
 import type { TermFormType, TermItemType, TermTagsType } from '@/types/term'
 
 import {
@@ -62,19 +65,24 @@ export const useTermCreate = () => {
 
 export function useTermDetail(termId: string | undefined) {
   const [term, setTerm] = useState<TermItemType | null>(null)
+  const { loading: authLoading, userId } = useAuthState(auth)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
-    if (!termId) {
-      setError(new Error('TermID가 없습니다.'))
+    if (authLoading) {
+      return
+    }
+
+    if (!userId || !termId) {
+      setError(new Error('유저가 존재하지 않거나 TermID가 없습니다.'))
       setLoading(false)
       return
     }
 
     const loadTermDetail = async () => {
       try {
-        const termData = await fetchTermDetail(termId)
+        const termData = await fetchTermDetail(userId, termId)
         setTerm(termData)
       } catch (err) {
         setError(err instanceof Error ? err : new Error('예상치 못한 오류가 발생했습니다.'))
@@ -84,39 +92,44 @@ export function useTermDetail(termId: string | undefined) {
     }
 
     loadTermDetail()
-  }, [termId])
+  }, [authLoading, userId, termId])
 
-  return { term, setTerm, loading, error }
+  return { term, setTerm, loading: loading || authLoading, error }
 }
 
-export const useTermDelete = (userId: string | null, termId: string | undefined) => {
+export const useTermDelete = (termId: string | undefined) => {
   const navigate = useNavigate()
+  const { userId, loading: authLoading } = useAuthState(auth)
   const [error, setError] = useState<Error | null>(null)
 
   const handleDelete = async (closeModal: () => void) => {
-    if (!userId || !termId) {
+    if (authLoading || !userId || !termId) {
       setError(new Error('유저가 존재하지 않거나 TermID가 없습니다.'))
       return
     }
 
-    await deleteTerm(userId, termId)
-    closeModal()
-    navigate('/term', { replace: true })
+    try {
+      await deleteTerm(userId, termId)
+      closeModal()
+      navigate('/term', { replace: true })
+    } catch (error) {
+      setError(error instanceof Error ? error : new Error('삭제 중 오류가 발생했습니다.'))
+    }
   }
 
   return { handleDelete, error }
 }
 
 export const useTermBookmark = (
-  userId: string | null,
   termId: string | undefined,
-  setTerm: React.Dispatch<React.SetStateAction<TermItemType | null>>,
+  setTerm: Dispatch<SetStateAction<TermItemType | null>>,
 ) => {
+  const { userId, loading: authLoading } = useAuthState(auth)
   const [isBookmarked, setIsBookmarked] = useState<boolean | null>(null)
   const [error, setError] = useState<Error | null>(null)
 
   const handleBookmarkToggle = async (currentBookmarkStatus: boolean) => {
-    if (!termId || !userId) {
+    if (authLoading || !termId || !userId) {
       setError(new Error('유저가 존재하지 않거나 TermID가 없습니다.'))
       return
     }

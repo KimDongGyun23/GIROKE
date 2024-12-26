@@ -7,8 +7,6 @@ import { Loading } from '@/components/view/Loading'
 import { ModalDelete } from '@/components/view/modal/Modal'
 import { SubHeaderWithIcon } from '@/components/view/SubHeader'
 import { Tag } from '@/components/view/Tag'
-import { auth } from '@/firebase/firebase'
-import { useAuthState } from '@/hooks/useAuthState'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useToggle } from '@/hooks/useToggle'
 import { useTermBookmark, useTermDelete, useTermDetail } from '@/services/useTermService'
@@ -18,15 +16,10 @@ export const TermDetail = () => {
   const { id } = useParams<{ id: string }>()
   const [isKebabOpen, toggleKebab] = useToggle(false)
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
-  const { loading: authLoading, userId } = useAuthState(auth)
 
   const { term, setTerm, loading: termLoading, error: termError } = useTermDetail(id)
-  const {
-    isBookmarked,
-    handleBookmarkToggle,
-    error: bookmarkError,
-  } = useTermBookmark(userId, id, setTerm)
-  const { handleDelete, error: deleteError } = useTermDelete(userId, id)
+  const { isBookmarked, handleBookmarkToggle, error: bookmarkError } = useTermBookmark(id, setTerm)
+  const { handleDelete, error: deleteError } = useTermDelete(id)
 
   const error = termError || bookmarkError || deleteError
 
@@ -44,11 +37,11 @@ export const TermDetail = () => {
     { label: '삭제', onClick: openModal },
   ]
 
-  if (authLoading || termLoading) {
+  if (termLoading) {
     return <Loading />
   }
 
-  if (error || !term) {
+  if (termError || bookmarkError || deleteError || !term) {
     return <ErrorMessage>{error?.message || '해당 용어가 존재하지 않습니다.'}</ErrorMessage>
   }
 
