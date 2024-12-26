@@ -83,7 +83,7 @@ export const TermDetail = () => {
   if (!term) {
     return <div>Term not found</div>
   }
-  console.log(term)
+
   return (
     <>
       <div>

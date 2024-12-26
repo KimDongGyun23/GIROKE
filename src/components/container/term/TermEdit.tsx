@@ -1,40 +1,77 @@
 import { useEffect, useState } from 'react'
 import { FormProvider } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import { doc, getDoc, updateDoc } from 'firebase/firestore'
 
 import { InputGroup } from '@/components/view/inputGroup'
 import { ModalEdit } from '@/components/view/modal/Modal'
 import { SubHeaderWithoutIcon } from '@/components/view/SubHeader'
 import { Tag } from '@/components/view/Tag'
+import { auth, db } from '@/firebase/firebase'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useTermForm } from '@/hooks/useForms'
 import type { TermItemType, TermTagsType } from '@/types/term'
 import { TERM_TAGS } from '@/utils/constants'
 
-const mockTermEditData: TermItemType = {
-  id: 0,
-  term: 'DNS',
-  description:
-    '사용자에게 친숙한 도메인 이름을 컴퓨터가 네트워크에서 서로를 식별하는 데 사용하는 인터넷 프로토콜(IP) 주소로 변환하는 인터넷 표준 프로토콜의 구성 요소',
-  tag: '네트워크',
-}
-
 export const TermEdit = () => {
   const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>()
   const formMethod = useTermForm()
-  const { handleSubmit, setValue } = formMethod
+  const { handleSubmit, setValue, getValues } = formMethod
 
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
-  const [selectedTag, setSelectedTag] = useState<TermTagsType>(mockTermEditData.tag)
+  const [selectedTag, setSelectedTag] = useState<TermTagsType | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  const handleFormSubmit = () => {
-    console.log('submit')
-    openModal()
+  useEffect(() => {
+    const fetchTermData = async () => {
+      if (!id) return
+      try {
+        const userId = auth.currentUser?.uid
+        if (!userId) {
+          console.error('User not authenticated')
+          return
+        }
+        const termDocRef = doc(db, 'users', userId, 'terms', id)
+        const termDoc = await getDoc(termDocRef)
+        if (termDoc.exists()) {
+          const data = termDoc.data() as TermItemType
+          Object.entries(data).forEach(([key, value]) => {
+            setValue(key as keyof Omit<TermItemType, 'id'>, value as string)
+          })
+          setSelectedTag(data.tag)
+        } else {
+          console.error('Term not found')
+        }
+      } catch (error) {
+        console.error('Error fetching term data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchTermData()
+  }, [id, setValue])
+
+  const handleFormSubmit = async () => {
+    try {
+      const userId = auth.currentUser?.uid
+      if (!userId || !id) {
+        console.error('User not authenticated or term ID is missing')
+        return
+      }
+      const formData = getValues()
+      const termDocRef = doc(db, 'users', userId, 'terms', id)
+      await updateDoc(termDocRef, formData)
+      console.log('Term updated successfully')
+      openModal()
+    } catch (error) {
+      console.error('Error updating term:', error)
+    }
   }
 
   const handleModalConfirm = () => {
     closeModal()
-    navigate(`/term/detail/${mockTermEditData.id}`, { replace: true })
+    navigate(`/term/detail/${id}`, { replace: true })
   }
 
   const handleTagSelect = (tag: TermTagsType) => {
@@ -42,11 +79,9 @@ export const TermEdit = () => {
     setValue('tag', tag)
   }
 
-  useEffect(() => {
-    Object.entries(mockTermEditData).forEach(([key, value]) => {
-      setValue(key as keyof Omit<TermItemType, 'id'>, value as string)
-    })
-  }, [setValue])
+  if (loading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <>
@@ -60,8 +95,8 @@ export const TermEdit = () => {
         <FormProvider {...formMethod}>
           <form className="flex-column gap-5">
             <InputGroup>
-              <InputGroup.Label section="name">용어 이름</InputGroup.Label>
-              <InputGroup.Input section="name" placeholder="용어 이름을 입력해주세요." />
+              <InputGroup.Label section="term">용어 이름</InputGroup.Label>
+              <InputGroup.Input section="term" placeholder="용어 이름을 입력해주세요." />
             </InputGroup>
 
             <InputGroup>
@@ -70,11 +105,7 @@ export const TermEdit = () => {
             </InputGroup>
 
             <InputGroup>
-              <div className="flex-between items-end">
-                <InputGroup.Label section="tag">태그 선택</InputGroup.Label>
-                <p className="p-xsmall text-grey-6">* 최대 2개 선택 가능</p>
-              </div>
-
+              <InputGroup.Label section="tag">태그 선택</InputGroup.Label>
               <div className="flex flex-wrap gap-2">
                 {TERM_TAGS.slice(1).map((tag: TermTagsType) => (
                   <Tag

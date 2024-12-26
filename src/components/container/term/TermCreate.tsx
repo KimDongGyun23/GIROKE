@@ -79,10 +79,7 @@ export const TermCreate = () => {
             </InputGroup>
 
             <InputGroup>
-              <div className="flex-between items-end">
-                <InputGroup.Label section="tag">태그 선택</InputGroup.Label>
-                <p className="p-xsmall text-grey-6">* 최대 2개 선택 가능</p>
-              </div>
+              <InputGroup.Label section="tag">태그 선택</InputGroup.Label>
 
               <div className="flex flex-wrap gap-2">
                 {TERM_TAGS.slice(1).map((tag) => (
