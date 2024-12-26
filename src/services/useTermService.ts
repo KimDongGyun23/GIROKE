@@ -6,9 +6,11 @@ import type { TermFormType, TermItemType, TermTagsType } from '@/types/term'
 import {
   createTerm,
   deleteTerm,
+  fetchTermData,
   fetchTermDetail,
   fetchTerms,
   toggleTermBookmark,
+  updateTermData,
 } from './termService'
 
 export const useTerms = (userId: string | null, activeTag: TermTagsType) => {
@@ -138,4 +140,49 @@ export const useTermBookmark = (
   }
 
   return { isBookmarked, handleBookmarkToggle, error }
+}
+
+export const useTermData = (id: string | undefined) => {
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+  const [termData, setTermData] = useState<TermItemType | null>(null)
+
+  useEffect(() => {
+    const loadTermData = async () => {
+      if (!id) return
+      try {
+        const data = await fetchTermData(id)
+        setTermData(data)
+      } catch (error) {
+        setError(
+          error instanceof Error
+            ? error
+            : new Error('데이터를 불러오는 과정에서 오류가 발생했습니다.'),
+        )
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadTermData()
+  }, [id])
+
+  return { termData, loading, error }
+}
+
+export const useTermUpdate = (id: string | undefined) => {
+  const [error, setError] = useState<Error | null>(null)
+
+  const updateTerm = async (formData: Omit<TermItemType, 'id'>) => {
+    if (!id) return
+    try {
+      await updateTermData(id, formData)
+    } catch (error) {
+      setError(
+        error instanceof Error ? error : new Error('업데이트 하는 과정에서 오류가 발생했습니다.'),
+      )
+      throw error
+    }
+  }
+
+  return { updateTerm, error }
 }

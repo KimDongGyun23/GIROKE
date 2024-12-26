@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react'
 import { FormProvider } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
-import { doc, getDoc, updateDoc } from 'firebase/firestore'
 
 import { InputGroup } from '@/components/view/inputGroup'
 import { Loading } from '@/components/view/Loading'
 import { ModalEdit } from '@/components/view/modal/Modal'
 import { SubHeaderWithoutIcon } from '@/components/view/SubHeader'
 import { Tag } from '@/components/view/Tag'
-import { auth, db } from '@/firebase/firebase'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useTermForm } from '@/hooks/useForms'
+import { useTermData, useTermUpdate } from '@/services/useTermService'
 import type { TermItemType, TermTagsType } from '@/types/term'
 import { TERM_TAGS } from '@/utils/constants'
 
@@ -22,48 +21,23 @@ export const TermEdit = () => {
 
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
   const [selectedTag, setSelectedTag] = useState<TermTagsType | null>(null)
-  const [loading, setLoading] = useState(true)
+
+  const { termData, loading, error: fetchError } = useTermData(id)
+  const { updateTerm, error: updateError } = useTermUpdate(id)
 
   useEffect(() => {
-    const fetchTermData = async () => {
-      if (!id) return
-      try {
-        const userId = auth.currentUser?.uid
-        if (!userId) {
-          console.error('User not authenticated')
-          return
-        }
-        const termDocRef = doc(db, 'users', userId, 'terms', id)
-        const termDoc = await getDoc(termDocRef)
-        if (termDoc.exists()) {
-          const data = termDoc.data() as TermItemType
-          Object.entries(data).forEach(([key, value]) => {
-            setValue(key as keyof Omit<TermItemType, 'id'>, value as string)
-          })
-          setSelectedTag(data.tag)
-        } else {
-          console.error('Term not found')
-        }
-      } catch (error) {
-        console.error('Error fetching term data:', error)
-      } finally {
-        setLoading(false)
-      }
+    if (termData) {
+      Object.entries(termData).forEach(([key, value]) => {
+        setValue(key as keyof Omit<TermItemType, 'id'>, value as string)
+      })
+      setSelectedTag(termData.tag)
     }
-    fetchTermData()
-  }, [id, setValue])
+  }, [termData, setValue])
 
   const handleFormSubmit = async () => {
     try {
-      const userId = auth.currentUser?.uid
-      if (!userId || !id) {
-        console.error('User not authenticated or term ID is missing')
-        return
-      }
       const formData = getValues()
-      const termDocRef = doc(db, 'users', userId, 'terms', id)
-      await updateDoc(termDocRef, formData)
-      console.log('Term updated successfully')
+      await updateTerm(formData)
       openModal()
     } catch (error) {
       console.error('Error updating term:', error)
@@ -82,6 +56,10 @@ export const TermEdit = () => {
 
   if (loading) {
     return <Loading />
+  }
+
+  if (fetchError || updateError) {
+    return <div>Error: {(fetchError || updateError)?.message}</div>
   }
 
   return (

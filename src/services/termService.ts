@@ -46,7 +46,7 @@ export const fetchTerms = async (
 
 export const createTerm = async (formData: TermFormType) => {
   const userId = auth.currentUser?.uid
-  if (!userId) throw new Error('유저가 존재하지 않습니다.')
+  if (!userId) throw new Error('사용자가 인증되지 않았습니다.')
 
   const newTermId = uuidv4()
   const userDocRef = doc(db, 'users', userId)
@@ -66,7 +66,7 @@ export const createTerm = async (formData: TermFormType) => {
 
 export const fetchTermDetail = async (termId: string) => {
   const userId = auth.currentUser?.uid
-  if (!userId) throw new Error('User not authenticated')
+  if (!userId) throw new Error('사용자가 인증되지 않았습니다.')
 
   const termDocRef = doc(db, 'users', userId, 'terms', termId)
   const termDoc = await getDoc(termDocRef)
@@ -80,7 +80,7 @@ export const fetchTermDetail = async (termId: string) => {
 
 export const toggleBookmark = async (termId: string, currentStatus: boolean) => {
   const userId = auth.currentUser?.uid
-  if (!userId) throw new Error('User not authenticated')
+  if (!userId) throw new Error('사용자가 인증되지 않았습니다.')
 
   const termDocRef = doc(db, 'users', userId, 'terms', termId)
   const newBookmarkStatus = !currentStatus
@@ -104,4 +104,27 @@ export const toggleTermBookmark = async (
   const newBookmarkStatus = !currentStatus
   await updateDoc(termDocRef, { isBookmarked: newBookmarkStatus })
   return newBookmarkStatus
+}
+
+export const fetchTermData = async (id: string) => {
+  const userId = auth.currentUser?.uid
+  if (!userId) {
+    throw new Error('사용자가 인증되지 않았습니다.')
+  }
+  const termDocRef = doc(db, 'users', userId, 'terms', id)
+  const termDoc = await getDoc(termDocRef)
+  if (termDoc.exists()) {
+    return termDoc.data() as TermItemType
+  } else {
+    throw new Error('용어가 존재하지 않습니다.')
+  }
+}
+
+export const updateTermData = async (id: string, formData: Omit<TermItemType, 'id'>) => {
+  const userId = auth.currentUser?.uid
+  if (!userId) {
+    throw new Error('사용자가 인증되지 않았습니다.')
+  }
+  const termDocRef = doc(db, 'users', userId, 'terms', id)
+  await updateDoc(termDocRef, formData)
 }
