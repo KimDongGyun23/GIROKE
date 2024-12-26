@@ -1,49 +1,55 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import type { CollectionReference, DocumentData } from 'firebase/firestore'
+import { collection, getDocs, query, where } from 'firebase/firestore'
 
 import { ProjectItem } from '@/components/domain/ProjectItem'
 import { PostAdditionButton } from '@/components/view/PostAdditionButton'
 import { Search } from '@/components/view/Search'
 import { Tag } from '@/components/view/Tag'
+import { auth, db } from '@/firebase/firebase'
 import type { ProjectItemType, ProjectTagType } from '@/types/project'
 import { PROJECT_TAGS } from '@/utils/constants'
 
-const mockProjects: ProjectItemType[] = [
-  {
-    id: 0,
-    title: 'BROOM',
-    satisfaction: 2,
-    description: '광운대를 위한 예비군 종합 서비스',
-    startDate: '2024.12.24',
-    finishDate: '2024.12.24',
-  },
-  {
-    id: 1,
-    title: 'BROOM',
-    satisfaction: 2,
-    description: '광운대를 위한 예비군 종합 서비스',
-    startDate: '2024.12.24',
-    finishDate: '2024.12.24',
-  },
-  {
-    id: 2,
-    title: 'BROOM',
-    satisfaction: 2,
-    description: '광운대를 위한 예비군 종합 서비스',
-    startDate: '2024.12.24',
-    finishDate: '2024.12.24',
-  },
-  {
-    id: 3,
-    title: 'BROOM',
-    satisfaction: 2,
-    description: '광운대를 위한 예비군 종합 서비스',
-    startDate: '2024.12.24',
-    finishDate: '2024.12.24',
-  },
-]
-
 export const Project = () => {
   const [activeTag, setActiveTag] = useState<ProjectTagType>(PROJECT_TAGS[0])
+  const [projects, setProjects] = useState<ProjectItemType[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      setLoading(true)
+      try {
+        const userId = auth.currentUser?.uid
+        if (!userId) {
+          console.error('User not authenticated')
+          setLoading(false)
+          return
+        }
+
+        const userProjectsRef = collection(db, 'users', userId, 'projects')
+        let projectsQuery = userProjectsRef
+        if (activeTag !== '전체') {
+          projectsQuery = query(
+            userProjectsRef,
+            where('satisfaction', '==', PROJECT_TAGS.indexOf(activeTag)),
+          ) as CollectionReference<DocumentData, DocumentData>
+        }
+
+        const querySnapshot = await getDocs(projectsQuery)
+        const fetchedProjects = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as ProjectItemType[]
+        setProjects(fetchedProjects)
+      } catch (error) {
+        console.error('Error fetching projects:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProjects()
+  }, [activeTag])
 
   const handleTagClick = (tag: ProjectTagType) => setActiveTag(tag)
 
@@ -60,9 +66,13 @@ export const Project = () => {
       </div>
 
       <section>
-        {mockProjects.map((project) => (
-          <ProjectItem key={project.id} project={project} />
-        ))}
+        {loading ? (
+          <p>Loading...</p>
+        ) : projects.length > 0 ? (
+          projects.map((project) => <ProjectItem key={project.id} project={project} />)
+        ) : (
+          <p>No projects found.</p>
+        )}
       </section>
 
       <PostAdditionButton to="/project/create" />
