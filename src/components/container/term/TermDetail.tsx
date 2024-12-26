@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { deleteDoc, doc, getDoc } from 'firebase/firestore'
+import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore'
 
 import { BottomBookmark } from '@/components/view/BottomBookmark'
 import { Kebab } from '@/components/view/Kebab'
@@ -71,6 +71,30 @@ export const TermDetail = () => {
     }
   }
 
+  const handleBookmarkToggle = async () => {
+    if (!term || !id) return
+
+    try {
+      const userId = auth.currentUser?.uid
+      if (!userId) {
+        console.error('User not authenticated')
+        return
+      }
+
+      const termDocRef = doc(db, 'users', userId, 'terms', id)
+      const newBookmarkStatus = !term.isBookmarked
+
+      await updateDoc(termDocRef, { isBookmarked: newBookmarkStatus })
+
+      setTerm((prevTerm) => ({
+        ...prevTerm!,
+        isBookmarked: newBookmarkStatus,
+      }))
+    } catch (error) {
+      console.error('Error toggling bookmark: ', error)
+    }
+  }
+
   const kebabOptions = [
     { label: '수정', onClick: handleEdit },
     { label: '삭제', onClick: openModal },
@@ -110,7 +134,7 @@ export const TermDetail = () => {
         </div>
       </main>
 
-      <BottomBookmark isActive />
+      <BottomBookmark isActive={term.isBookmarked} onToggleBookmark={handleBookmarkToggle} />
 
       {isModalOpen && (
         <ModalDelete
