@@ -1,65 +1,62 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import type { CollectionReference, DocumentData } from 'firebase/firestore'
+import { collection, getDocs, query, where } from 'firebase/firestore'
 
 import { TermItem } from '@/components/domain/TermItem'
 import { BackArrowIcon } from '@/components/view/icons/NonActiveIcon'
 import { Search } from '@/components/view/Search'
 import { Tag } from '@/components/view/Tag'
+import { auth, db } from '@/firebase/firebase'
 import type { TermItemType, TermTagsType } from '@/types/term'
 import { TERM_TAGS } from '@/utils/constants'
-
-const mockTerms: TermItemType[] = [
-  {
-    id: 0,
-    term: 'DNS',
-    tag: '네트워크',
-    description:
-      '사용자에게 친숙한 도메인 이름을 컴퓨터가 네트워크에서 서로를 식별하는 데 사용하는 인터넷 프로토콜(IP) 주소로 변환하는 인터넷 표준 프로토콜의 구성 요소',
-  },
-  {
-    id: 1,
-    term: 'DNS',
-    tag: '네트워크',
-    description:
-      '사용자에게 친숙한 도메인 이름을 컴퓨터가 네트워크에서 서로를 식별하는 데 사용하는 인터넷 프로토콜(IP) 주소로 변환하는 인터넷 표준 프로토콜의 구성 요소',
-  },
-  {
-    id: 2,
-    term: 'DNS',
-    tag: '네트워크',
-    description:
-      '사용자에게 친숙한 도메인 이름을 컴퓨터가 네트워크에서 서로를 식별하는 데 사용하는 인터넷 프로토콜(IP) 주소로 변환하는 인터넷 표준 프로토콜의 구성 요소',
-  },
-  {
-    id: 3,
-    term: 'DNS',
-    tag: '네트워크',
-    description:
-      '사용자에게 친숙한 도메인 이름을 컴퓨터가 네트워크에서 서로를 식별하는 데 사용하는 인터넷 프로토콜(IP) 주소로 변환하는 인터넷 표준 프로토콜의 구성 요소',
-  },
-  {
-    id: 4,
-    term: 'DNS',
-    tag: '네트워크',
-    description:
-      '사용자에게 친숙한 도메인 이름을 컴퓨터가 네트워크에서 서로를 식별하는 데 사용하는 인터넷 프로토콜(IP) 주소로 변환하는 인터넷 표준 프로토콜의 구성 요소',
-  },
-  {
-    id: 5,
-    term: 'DNS',
-    tag: '네트워크',
-    description:
-      '사용자에게 친숙한 도메인 이름을 컴퓨터가 네트워크에서 서로를 식별하는 데 사용하는 인터넷 프로토콜(IP) 주소로 변환하는 인터넷 표준 프로토콜의 구성 요소',
-  },
-]
 
 export const TermSearch = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const searchName = searchParams.get('searchName') || ''
   const [activeTag, setActiveTag] = useState<TermTagsType>(TERM_TAGS[0])
+  const [terms, setTerms] = useState<TermItemType[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const handleBackClick = () => navigate(-1)
+  useEffect(() => {
+    const fetchTerms = async () => {
+      setLoading(true)
+      try {
+        const userId = auth.currentUser?.uid
+        if (!userId) {
+          console.error('User not authenticated')
+          setLoading(false)
+          return
+        }
+
+        const userTermsRef = collection(db, 'users', userId, 'terms')
+        let termQuery = userTermsRef
+
+        if (activeTag !== '전체') {
+          termQuery = query(userTermsRef, where('tag', '==', activeTag)) as CollectionReference<
+            DocumentData,
+            DocumentData
+          >
+        }
+
+        const querySnapshot = await getDocs(termQuery)
+        const fetchedTerms = querySnapshot.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() }) as TermItemType)
+          .filter((term) => term.term.toLowerCase().includes(searchName.toLowerCase()))
+
+        setTerms(fetchedTerms)
+      } catch (error) {
+        console.error('Error fetching terms:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTerms()
+  }, [activeTag, searchName])
+
+  const handleBackClick = () => navigate('/term')
   const handleTagClick = (tag: TermTagsType) => setActiveTag(tag)
 
   return (
@@ -82,9 +79,13 @@ export const TermSearch = () => {
       </div>
 
       <section className="flex-column scroll grow">
-        {mockTerms.map((term) => (
-          <TermItem key={term.id} term={term} />
-        ))}
+        {loading ? (
+          <p>Loading...</p>
+        ) : terms.length > 0 ? (
+          terms.map((term) => <TermItem key={term.id} term={term} />)
+        ) : (
+          <p>No terms found.</p>
+        )}
       </section>
     </main>
   )
