@@ -56,7 +56,7 @@ export const ProjectSearch = () => {
     fetchProjects()
   }, [activeTag, searchName])
 
-  const handleBackClick = () => navigate(-1)
+  const handleBackClick = () => navigate('project')
   const handleTagClick = (tag: ProjectTagType) => setActiveTag(tag)
 
   return (
