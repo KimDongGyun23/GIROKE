@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { BookmarkProject } from '@/components/domain/BookmarkProject'
+import { BookmarkNote } from '@/components/domain/BookmarkNote'
 import { BookmarkTerm } from '@/components/domain/BookmarkTerm'
 
 const TABS = ['용어 정리', '노트'] as const
@@ -31,7 +31,7 @@ export const Bookmark = () => {
       </div>
 
       <main className="flex-column scroll mx-4">
-        {currentTab === TABS[0] ? <BookmarkTerm /> : <BookmarkProject />}
+        {currentTab === TABS[0] ? <BookmarkTerm /> : <BookmarkNote />}
       </main>
     </>
   )

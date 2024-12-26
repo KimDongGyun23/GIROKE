@@ -3,16 +3,16 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 
 import { auth, db } from '@/firebase/firebase'
-import type { TermItemType, TermTagsType } from '@/types/term'
-import { TERM_TAGS } from '@/utils/constants'
+import type { NoteItemType, NoteTagType } from '@/types/note'
+import { NOTE_TAGS } from '@/utils/constants'
 
 import { Tag } from '../view/Tag'
 
-import { TermItem } from './TermItem'
+import { NoteItem } from './NoteItem'
 
-export const BookmarkTerm = () => {
-  const [activeTag, setActiveTag] = useState<TermTagsType>(TERM_TAGS[0])
-  const [bookmarkedTerms, setBookmarkedTerms] = useState<TermItemType[]>([])
+export const BookmarkNote = () => {
+  const [activeTag, setActiveTag] = useState<NoteTagType>(NOTE_TAGS[0])
+  const [bookmarkedNotes, setBookmarkedNotes] = useState<NoteItemType[]>([])
   const [userId, setUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -30,41 +30,41 @@ export const BookmarkTerm = () => {
   }, [])
 
   useEffect(() => {
-    const fetchBookmarkedTerms = async () => {
-      if (!userId) return
+    if (!userId) return
 
+    const fetchBookmarkedNotes = async () => {
       setLoading(true)
       try {
-        const termsRef = collection(db, 'users', userId, 'terms')
-        let termsQuery = query(termsRef, where('isBookmarked', '==', true))
+        const notesRef = collection(db, 'users', userId, 'notes')
+        let notesQuery = query(notesRef, where('isBookmarked', '==', true))
 
         if (activeTag !== '전체') {
-          termsQuery = query(termsQuery, where('tag', '==', activeTag))
+          notesQuery = query(notesQuery, where('tag', '==', activeTag))
         }
 
-        const querySnapshot = await getDocs(termsQuery)
-        const fetchedTerms = querySnapshot.docs.map((doc) => ({
+        const querySnapshot = await getDocs(notesQuery)
+        const fetchedNotes = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        })) as TermItemType[]
+        })) as NoteItemType[]
 
-        setBookmarkedTerms(fetchedTerms)
+        setBookmarkedNotes(fetchedNotes)
       } catch (error) {
-        console.error('Error fetching bookmarked terms:', error)
+        console.error('Error fetching bookmarked notes:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchBookmarkedTerms()
+    fetchBookmarkedNotes()
   }, [activeTag, userId])
 
-  const handleTagClick = (tag: TermTagsType) => setActiveTag(tag)
+  const handleTagClick = (tag: NoteTagType) => setActiveTag(tag)
 
   return (
     <>
       <div className="scroll flex w-fit shrink-0 gap-2 overflow-x-scroll py-3">
-        {TERM_TAGS.map((tag) => (
+        {NOTE_TAGS.map((tag) => (
           <Tag key={tag} secondary={activeTag !== tag} onClick={() => handleTagClick(tag)}>
             {tag}
           </Tag>
@@ -74,10 +74,10 @@ export const BookmarkTerm = () => {
       <section className="flex-column scroll">
         {loading ? (
           <p>Loading...</p>
-        ) : bookmarkedTerms.length > 0 ? (
-          bookmarkedTerms.map((term) => <TermItem key={term.id} term={term} />)
+        ) : bookmarkedNotes.length > 0 ? (
+          bookmarkedNotes.map((note) => <NoteItem key={note.id} note={note} />)
         ) : (
-          <p>No bookmarked terms found.</p>
+          <p>No bookmarked notes found.</p>
         )}
       </section>
     </>
