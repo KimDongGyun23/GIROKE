@@ -1,19 +1,17 @@
 import { useState } from 'react'
 import { FormProvider } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import { collection, doc, setDoc } from 'firebase/firestore'
-import { v4 as uuidv4 } from 'uuid'
 
+import { ErrorMessage } from '@/components/view/ErrorMessage'
 import { InputGroup } from '@/components/view/inputGroup'
 import { ModalCreate } from '@/components/view/modal/Modal'
 import { SubHeaderWithoutIcon } from '@/components/view/SubHeader'
 import { Tag } from '@/components/view/Tag'
-import { auth, db } from '@/firebase/firebase'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useTermForm } from '@/hooks/useForms'
+import { useTermCreate } from '@/services/useTermService'
 import type { TermTagsType } from '@/types/term'
 import { TERM_TAGS } from '@/utils/constants'
-import { formatDate } from '@/utils/formatDate'
 
 export const TermCreate = () => {
   const navigate = useNavigate()
@@ -21,30 +19,12 @@ export const TermCreate = () => {
   const { handleSubmit, setValue, getValues } = formMethod
   const [selectedTag, setSelectedTag] = useState<TermTagsType | null>(null)
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
-  const [newTermId, setNewTermId] = useState<string | null>(null)
+  const { createTerm, newTermId, error } = useTermCreate()
 
   const handleFormSubmit = async () => {
-    try {
-      const formData = getValues()
-      const userId = auth.currentUser?.uid as string
-
-      const newTermId = uuidv4()
-      const userDocRef = doc(db, 'users', userId)
-      const termsCollectionRef = collection(userDocRef, 'terms')
-      const newTermDocRef = doc(termsCollectionRef, newTermId)
-
-      await setDoc(newTermDocRef, {
-        id: newTermId,
-        term: formData.term,
-        description: formData.description,
-        createdAt: formatDate(new Date(), 'dotted'),
-        tag: formData.tag,
-      })
-      setNewTermId(newTermId)
-      openModal()
-    } catch (error) {
-      console.error('Error adding document: ', error)
-    }
+    const formData = getValues()
+    await createTerm(formData)
+    openModal()
   }
 
   const handleModalConfirm = () => {
@@ -55,6 +35,10 @@ export const TermCreate = () => {
   const handleTagSelect = (tag: TermTagsType) => {
     setSelectedTag(tag)
     setValue('tag', tag)
+  }
+
+  if (error) {
+    return <ErrorMessage>예상치 못한 오류가 발생했습니다.</ErrorMessage>
   }
 
   return (

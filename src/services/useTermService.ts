@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 
-import type { TermItemType, TermTagsType } from '@/types/term'
+import type { TermFormType, TermItemType, TermTagsType } from '@/types/term'
 
-import { fetchTerms } from './termService'
+import { createTerm, fetchTerms } from './termService'
 
 export const useTerms = (userId: string | null, activeTag: TermTagsType) => {
   const [terms, setTerms] = useState<TermItemType[]>([])
@@ -29,4 +29,23 @@ export const useTerms = (userId: string | null, activeTag: TermTagsType) => {
   }, [userId, activeTag])
 
   return { terms, loading, error }
+}
+
+export const useTermCreate = () => {
+  const [newTermId, setNewTermId] = useState<string | null>(null)
+  const [error, setError] = useState<Error | null>(null)
+
+  const handleCreateTerm = async (formData: TermFormType) => {
+    try {
+      const createdTermId = await createTerm(formData)
+      setNewTermId(createdTermId)
+      setError(null)
+      return createdTermId
+    } catch (error) {
+      setError(error instanceof Error ? error : new Error('예상치 못한 오류 발생'))
+      throw error
+    }
+  }
+
+  return { createTerm: handleCreateTerm, newTermId, error }
 }
