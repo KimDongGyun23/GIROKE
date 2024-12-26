@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 
-import { Login } from '../container/auth/login'
+import { ErrorPage } from '../container/auth/ErrorPage'
+import { Login } from '../container/auth/Login'
 import { Bookmark } from '../container/bookmark/Bookmark'
 import { Home } from '../container/home/Home'
 import { HomeCreate } from '../container/home/HomeCreate'
@@ -49,6 +50,8 @@ export const RouterComponent = () => {
       <Route path="/note/search" element={<NoteSearch />} />
 
       <Route path="/bookmark" element={<Bookmark />} />
+
+      <Route path="*" element={<ErrorPage />} />
     </Routes>
   )
 }
