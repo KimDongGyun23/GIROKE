@@ -128,3 +128,27 @@ export const updateTermData = async (id: string, formData: Omit<TermItemType, 'i
   const termDocRef = doc(db, 'users', userId, 'terms', id)
   await updateDoc(termDocRef, formData)
 }
+
+export const fetchTermsByTagAndSearch = async (activeTag: string, searchName: string) => {
+  const userId = auth.currentUser?.uid
+  if (!userId) {
+    throw new Error('User not authenticated')
+  }
+
+  const userTermsRef = collection(db, 'users', userId, 'terms')
+  let termQuery = userTermsRef
+
+  if (activeTag !== '전체') {
+    termQuery = query(userTermsRef, where('tag', '==', activeTag)) as CollectionReference<
+      DocumentData,
+      DocumentData
+    >
+  }
+
+  const querySnapshot = await getDocs(termQuery)
+  const fetchedTerms = querySnapshot.docs
+    .map((doc) => ({ id: doc.id, ...doc.data() }) as TermItemType)
+    .filter((term) => term.term.toLowerCase().includes(searchName.toLowerCase()))
+
+  return fetchedTerms
+}

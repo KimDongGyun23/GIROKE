@@ -9,6 +9,7 @@ import {
   fetchTermData,
   fetchTermDetail,
   fetchTerms,
+  fetchTermsByTagAndSearch,
   toggleTermBookmark,
   updateTermData,
 } from './termService'
@@ -185,4 +186,29 @@ export const useTermUpdate = (id: string | undefined) => {
   }
 
   return { updateTerm, error }
+}
+
+export const useTermSearch = (activeTag: TermTagsType, searchName: string) => {
+  const [terms, setTerms] = useState<TermItemType[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+
+  useEffect(() => {
+    const loadTerms = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const fetchedTerms = await fetchTermsByTagAndSearch(activeTag, searchName)
+        setTerms(fetchedTerms)
+      } catch (error) {
+        setError(error instanceof Error ? error : new Error('예상치 못한 오류가 발생했습니다.'))
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadTerms()
+  }, [activeTag, searchName])
+
+  return { terms, loading, error }
 }
