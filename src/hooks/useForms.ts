@@ -9,7 +9,7 @@ import type { ProjectFormType } from '@/types/project'
 import type { TermFormType } from '@/types/term'
 
 const termSchema = z.object({
-  name: z.string().min(1, { message: '용어 이름을 입력해주세요.' }),
+  term: z.string().min(1, { message: '용어 이름을 입력해주세요.' }),
   description: z.string().min(1, { message: '상세 설명을 입력해주세요.' }),
   tag: z
     .string()

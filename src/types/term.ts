@@ -1,9 +1,10 @@
 import type { TERM_TAGS } from '@/utils/constants'
 
 export type TermItemType = {
-  id: number
+  id: string
   term: string
   tag: TermTagsType
+  createdAt: string
   description: string
 }
 
