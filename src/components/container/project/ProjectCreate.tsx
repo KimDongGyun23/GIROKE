@@ -39,12 +39,7 @@ const inputFields = [
 export const ProjectCreate = () => {
   const navigate = useNavigate()
   const formMethod = useProjectForm()
-  const {
-    handleSubmit,
-    setValue,
-    getValues,
-    formState: { errors },
-  } = formMethod
+  const { handleSubmit, setValue, getValues } = formMethod
 
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
   const [satisfaction, setSatisfaction] = useState<number>(0)
