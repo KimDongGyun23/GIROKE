@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { FormProvider } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import { addDoc, collection } from 'firebase/firestore'
+import { collection, doc, setDoc } from 'firebase/firestore'
 import { v4 as uuidv4 } from 'uuid'
 
 import { ThumbIcon } from '@/components/view/icons/ActiveIcon'
@@ -59,16 +59,17 @@ export const ProjectCreate = () => {
       }
 
       const formData = getValues()
-      const projectId = uuidv4()
+      const newProjectId = uuidv4()
       const userProjectsRef = collection(db, 'users', userId, 'projects')
+      const newProjectDocRef = doc(userProjectsRef, newProjectId)
 
-      await addDoc(userProjectsRef, {
-        id: projectId,
+      await setDoc(newProjectDocRef, {
+        id: newProjectId,
         ...formData,
         createdAt: formatDate(new Date(), 'dotted'),
       })
 
-      setNewProjectId(projectId)
+      setNewProjectId(newProjectId)
       openModal()
     } catch (error) {
       console.error('Error creating project: ', error)
@@ -86,7 +87,7 @@ export const ProjectCreate = () => {
     setSatisfaction(value)
     setValue('satisfaction', value)
   }
-  console.log(errors)
+
   return (
     <>
       <SubHeaderWithoutIcon

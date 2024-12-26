@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { onAuthStateChanged } from 'firebase/auth'
 import type { CollectionReference, DocumentData } from 'firebase/firestore'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 
@@ -13,19 +14,28 @@ import { PROJECT_TAGS } from '@/utils/constants'
 export const Project = () => {
   const [activeTag, setActiveTag] = useState<ProjectTagType>(PROJECT_TAGS[0])
   const [projects, setProjects] = useState<ProjectItemType[]>([])
+  const [userId, setUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid)
+      } else {
+        setUserId(null)
+      }
+      setLoading(false)
+    })
+
+    return () => unsubscribe()
+  }, [])
+
+  useEffect(() => {
+    if (!userId) return
+
     const fetchProjects = async () => {
       setLoading(true)
       try {
-        const userId = auth.currentUser?.uid
-        if (!userId) {
-          console.error('User not authenticated')
-          setLoading(false)
-          return
-        }
-
         const userProjectsRef = collection(db, 'users', userId, 'projects')
         let projectsQuery = userProjectsRef
         if (activeTag !== '전체') {
@@ -49,7 +59,7 @@ export const Project = () => {
     }
 
     fetchProjects()
-  }, [activeTag])
+  }, [activeTag, userId])
 
   const handleTagClick = (tag: ProjectTagType) => setActiveTag(tag)
 

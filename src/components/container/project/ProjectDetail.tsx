@@ -1,65 +1,93 @@
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { deleteDoc, doc, getDoc } from 'firebase/firestore'
 
 import { ThumbIcon } from '@/components/view/icons/ActiveIcon'
 import { InputGroup } from '@/components/view/inputGroup'
 import { Kebab } from '@/components/view/Kebab'
 import { ModalDelete } from '@/components/view/modal/Modal'
 import { SubHeaderWithIcon } from '@/components/view/SubHeader'
+import { auth, db } from '@/firebase/firebase'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useToggle } from '@/hooks/useToggle'
-
-const mockProjectDetail = {
-  id: 0,
-  title: 'BROOM',
-  satisfaction: 2,
-  description: '광운대를 위한 예비군 종합 서비스',
-  startDate: '2024.12.24',
-  finishDate: '2024.12.24',
-  painstakingPart:
-    '공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분',
-  likingPart:
-    '공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분',
-  disappointingPart:
-    '공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분',
-  reasonOfStack:
-    '공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분공들인 부분',
-}
+import type { ProjectDetailType } from '@/types/project'
+import { formatDate } from '@/utils/formatDate'
 
 export const ProjectDetail = () => {
   const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>()
   const [isKebabOpen, toggleKebabState] = useToggle(false)
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
+  const [project, setProject] = useState<ProjectDetailType | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  const {
-    id,
-    title,
-    description,
-    startDate,
-    finishDate,
-    satisfaction,
-    painstakingPart,
-    likingPart,
-    disappointingPart,
-    reasonOfStack,
-  } = mockProjectDetail
+  useEffect(() => {
+    const fetchProjectDetail = async () => {
+      if (!id) return
+      try {
+        const userId = auth.currentUser?.uid
+        if (!userId) {
+          console.error('User not authenticated')
+          return
+        }
+        const projectDocRef = doc(db, 'users', userId, 'projects', id)
+        const projectDoc = await getDoc(projectDocRef)
 
-  const projectDetails = [
-    { label: '한줄 설명', content: description },
-    { label: '공들인 부분', content: painstakingPart },
-    { label: '좋았던 부분', content: likingPart },
-    { label: '아쉬운 부분', content: disappointingPart },
-    { label: '사용한 기술들을 사용한 이유', content: reasonOfStack },
-  ]
+        if (projectDoc.exists()) {
+          setProject({ id: projectDoc.id, ...projectDoc.data() } as ProjectDetailType)
+        } else {
+          console.error('Project not found')
+        }
+      } catch (error) {
+        console.error('Error fetching project details:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProjectDetail()
+  }, [id])
 
-  const handleEdit = () => navigate(`/project/edit/${id}`)
-  const handleDelete = () => {
-    // 삭제 로직 구현
-    closeModal()
+  const handleEdit = () => {
+    if (id) navigate(`/project/edit/${id}`)
+  }
+
+  const handleDelete = async () => {
+    if (!id) return
+    try {
+      const userId = auth.currentUser?.uid
+      if (!userId) {
+        console.error('User not authenticated')
+        return
+      }
+      const projectDocRef = doc(db, 'users', userId, 'projects', id)
+      await deleteDoc(projectDocRef)
+      console.log('Project deleted successfully')
+      closeModal()
+      navigate('/project', { replace: true })
+    } catch (error) {
+      console.error('Error deleting project:', error)
+    }
   }
 
   const kebabOptions = [
     { label: '수정', onClick: handleEdit },
     { label: '삭제', onClick: openModal },
+  ]
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
+  if (!project) {
+    return <div>Project not found</div>
+  }
+
+  const projectDetails = [
+    { label: '한줄 설명', content: project.description },
+    { label: '공들인 부분', content: project.painstakingPart },
+    { label: '좋았던 부분', content: project.likingPart },
+    { label: '아쉬운 부분', content: project.disappointingPart },
+    { label: '사용한 기술들을 사용한 이유', content: project.reasonOfStack },
   ]
 
   return (
@@ -73,13 +101,13 @@ export const ProjectDetail = () => {
 
       <main className="flex-column scroll grow px-4 pt-5">
         <div>
-          <h4 className="font-bold">{title}</h4>
+          <h4 className="font-bold">{project.title}</h4>
           <div className="flex-between items-end">
             <span className="p-xsmall text-grey-5">
-              {startDate} - {finishDate}
+              {formatDate(project.startDate, 'dotted')} - {formatDate(project.finishDate, 'dotted')}
             </span>
             <div className="flex gap-2">
-              {[...Array(satisfaction)].map((_, index) => (
+              {[...Array(project.satisfaction)].map((_, index) => (
                 <ThumbIcon active key={index} />
               ))}
             </div>

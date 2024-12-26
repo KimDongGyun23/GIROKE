@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 
 import type { ProjectItemType } from '@/types/project'
+import { formatDate } from '@/utils/formatDate'
 
 import { ThumbIcon } from '../view/icons/ActiveIcon'
 
@@ -26,7 +27,7 @@ export const ProjectItem = ({ project }: ProjectItemProps) => {
       <div className="flex-column gap-1">
         <p className="p-small font-medium text-grey-5">{description}</p>
         <p className="p-xsmall text-grey-4">
-          {startDate} - {finishDate}
+          {formatDate(startDate, 'dotted')} - {formatDate(finishDate, 'dotted')}
         </p>
       </div>
     </Link>
