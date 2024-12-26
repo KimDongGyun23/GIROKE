@@ -1,5 +1,15 @@
 import type { CollectionReference, DocumentData } from 'firebase/firestore'
-import { collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore'
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from 'firebase/firestore'
 import { v4 as uuidv4 } from 'uuid'
 
 import { auth, db } from '@/firebase/firebase'
@@ -52,4 +62,46 @@ export const createTerm = async (formData: TermFormType) => {
   })
 
   return newTermId
+}
+
+export const fetchTermDetail = async (termId: string) => {
+  const userId = auth.currentUser?.uid
+  if (!userId) throw new Error('User not authenticated')
+
+  const termDocRef = doc(db, 'users', userId, 'terms', termId)
+  const termDoc = await getDoc(termDocRef)
+
+  if (termDoc.exists()) {
+    return { id: termDoc.id, ...termDoc.data() } as TermItemType
+  } else {
+    throw new Error('Term not found')
+  }
+}
+
+export const toggleBookmark = async (termId: string, currentStatus: boolean) => {
+  const userId = auth.currentUser?.uid
+  if (!userId) throw new Error('User not authenticated')
+
+  const termDocRef = doc(db, 'users', userId, 'terms', termId)
+  const newBookmarkStatus = !currentStatus
+
+  await updateDoc(termDocRef, { isBookmarked: newBookmarkStatus })
+
+  return newBookmarkStatus
+}
+
+export const deleteTerm = async (userId: string, termId: string) => {
+  const termDocRef = doc(db, 'users', userId, 'terms', termId)
+  await deleteDoc(termDocRef)
+}
+
+export const toggleTermBookmark = async (
+  userId: string,
+  termId: string,
+  currentStatus: boolean,
+) => {
+  const termDocRef = doc(db, 'users', userId, 'terms', termId)
+  const newBookmarkStatus = !currentStatus
+  await updateDoc(termDocRef, { isBookmarked: newBookmarkStatus })
+  return newBookmarkStatus
 }

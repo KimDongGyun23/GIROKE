@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore'
 
 import { BottomBookmark } from '@/components/view/BottomBookmark'
 import { ErrorMessage } from '@/components/view/ErrorMessage'
@@ -9,92 +7,36 @@ import { Loading } from '@/components/view/Loading'
 import { ModalDelete } from '@/components/view/modal/Modal'
 import { SubHeaderWithIcon } from '@/components/view/SubHeader'
 import { Tag } from '@/components/view/Tag'
-import { auth, db } from '@/firebase/firebase'
+import { auth } from '@/firebase/firebase'
+import { useAuthState } from '@/hooks/useAuthState'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useToggle } from '@/hooks/useToggle'
-import type { TermItemType } from '@/types/term'
+import { useTermBookmark, useTermDelete, useTermDetail } from '@/services/useTermService'
 
 export const TermDetail = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const [isKebabOpen, toggleKebab] = useToggle(false)
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
-  const [term, setTerm] = useState<TermItemType | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { loading: authLoading, userId } = useAuthState(auth)
 
-  useEffect(() => {
-    const fetchTermDetail = async () => {
-      try {
-        const userId = auth.currentUser?.uid
-        if (!userId || !id) {
-          console.error('User not authenticated or term ID is missing')
-          setLoading(false)
-          return
-        }
+  const { term, setTerm, loading: termLoading, error: termError } = useTermDetail(id)
+  const {
+    isBookmarked,
+    handleBookmarkToggle,
+    error: bookmarkError,
+  } = useTermBookmark(userId, id, setTerm)
+  const { handleDelete, error: deleteError } = useTermDelete(userId, id)
 
-        const termDocRef = doc(db, 'users', userId, 'terms', id)
-        const termDoc = await getDoc(termDocRef)
-
-        if (termDoc.exists()) {
-          setTerm({ id: termDoc.id, ...termDoc.data() } as TermItemType)
-        } else {
-          console.error('Term not found')
-        }
-      } catch (error) {
-        console.error('Error fetching term details: ', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchTermDetail()
-  }, [id])
+  const error = termError || bookmarkError || deleteError
 
   const handleEdit = () => {
     if (id) navigate(`/term/edit/${id}`)
   }
 
-  const handleDelete = async () => {
-    try {
-      const userId = auth.currentUser?.uid
-      if (!userId || !id) {
-        console.error('User not authenticated or term ID is missing')
-        return
-      }
-
-      const termDocRef = doc(db, 'users', userId, 'terms', id)
-      await deleteDoc(termDocRef)
-
-      console.log('Term deleted successfully')
-      closeModal()
-      navigate('/term', { replace: true })
-    } catch (error) {
-      console.error('Error deleting term: ', error)
-    }
-  }
-
-  const handleBookmarkToggle = async () => {
-    if (!term || !id) return
-
-    try {
-      const userId = auth.currentUser?.uid
-      if (!userId) {
-        console.error('User not authenticated')
-        return
-      }
-
-      const termDocRef = doc(db, 'users', userId, 'terms', id)
-      const newBookmarkStatus = !term.isBookmarked
-
-      await updateDoc(termDocRef, { isBookmarked: newBookmarkStatus })
-
-      setTerm((prevTerm) => ({
-        ...prevTerm!,
-        isBookmarked: newBookmarkStatus,
-      }))
-    } catch (error) {
-      console.error('Error toggling bookmark: ', error)
-    }
+  const onBookmarkToggle = () => {
+    if (!term) return
+    handleBookmarkToggle(term.isBookmarked)
   }
 
   const kebabOptions = [
@@ -102,12 +44,12 @@ export const TermDetail = () => {
     { label: '삭제', onClick: openModal },
   ]
 
-  if (loading) {
+  if (authLoading || termLoading) {
     return <Loading />
   }
 
-  if (!term) {
-    return <ErrorMessage>{'해당 용어가 존재하지 않습니다.'}</ErrorMessage>
+  if (error || !term) {
+    return <ErrorMessage>{error?.message || '해당 용어가 존재하지 않습니다.'}</ErrorMessage>
   }
 
   return (
@@ -136,14 +78,17 @@ export const TermDetail = () => {
         </div>
       </main>
 
-      <BottomBookmark isActive={term.isBookmarked} onToggleBookmark={handleBookmarkToggle} />
+      <BottomBookmark
+        isActive={isBookmarked ?? term.isBookmarked}
+        onToggleBookmark={onBookmarkToggle}
+      />
 
       {isModalOpen && (
         <ModalDelete
           isOpen={isModalOpen}
           closeModal={closeModal}
           leftButtonOnClick={closeModal}
-          rightButtonOnClick={handleDelete}
+          rightButtonOnClick={() => handleDelete(closeModal)}
         />
       )}
     </>
