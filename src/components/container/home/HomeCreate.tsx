@@ -1,23 +1,22 @@
 import { useEffect } from 'react'
 import { FormProvider } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import { arrayUnion, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
-import { v4 as uuidv4 } from 'uuid'
 
 import { HomeCalender } from '@/components/domain/HomeCalendar'
+import { ErrorMessage } from '@/components/view/ErrorMessage'
 import { InputGroup } from '@/components/view/inputGroup'
 import { ModalCreate } from '@/components/view/modal/Modal'
 import { SubHeaderWithoutIcon } from '@/components/view/SubHeader'
-import { auth, db } from '@/firebase/firebase'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useHomeForm } from '@/hooks/useForms'
+import { useTaskCreate } from '@/services/useHomeService'
 import type { CalendarValue } from '@/types/common'
-import { formatDate } from '@/utils/formatDate'
 
 export const HomeCreate = () => {
   const formMethod = useHomeForm()
   const navigate = useNavigate()
   const { handleSubmit, setValue, getValues, watch } = formMethod
+  const { handleCreateTask, error } = useTaskCreate()
 
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
   const dateValue = watch('date')
@@ -27,36 +26,10 @@ export const HomeCreate = () => {
   }, [setValue])
 
   const handleFormSubmit = async () => {
-    try {
-      const formData = getValues()
-      const userId = auth.currentUser?.uid as string
-      const monthDoc = formatDate(formData.date, 'defaultMonth')
-
-      const userDocRef = doc(db, 'users', userId)
-      const scheduleDocRef = doc(userDocRef, 'schedules', monthDoc)
-
-      const newTask = {
-        id: uuidv4(),
-        todo: formData.todo,
-        date: formatDate(formData.date, 'default'),
-        isActive: false,
-      }
-
-      const scheduleDoc = await getDoc(scheduleDocRef)
-
-      if (scheduleDoc.exists()) {
-        await updateDoc(scheduleDocRef, {
-          tasks: arrayUnion(newTask),
-        })
-      } else {
-        await setDoc(scheduleDocRef, {
-          tasks: [newTask],
-        })
-      }
-
+    const formData = getValues()
+    const newTask = await handleCreateTask(formData)
+    if (newTask) {
       openModal()
-    } catch (error) {
-      console.error('데이터 저장 중 오류 발생:', error)
     }
   }
 
@@ -67,6 +40,10 @@ export const HomeCreate = () => {
 
   const handleDateChange = (date: CalendarValue) => {
     setValue('date', date as Date)
+  }
+
+  if (error) {
+    return <ErrorMessage>{error.message}</ErrorMessage>
   }
 
   return (
