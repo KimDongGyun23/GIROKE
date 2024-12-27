@@ -78,3 +78,26 @@ export const updateProjectData = async (
   const projectDocRef = doc(db, 'users', userId, 'projects', projectId)
   await updateDoc(projectDocRef, formData)
 }
+
+export const searchProjects = async (
+  userId: string,
+  activeTag: ProjectTagType,
+  searchName: string,
+) => {
+  const userProjectsRef = collection(db, 'users', userId, 'projects')
+  let projectsQuery = userProjectsRef
+
+  if (activeTag !== '전체') {
+    projectsQuery = query(userProjectsRef, where('tag', '==', activeTag)) as CollectionReference<
+      DocumentData,
+      DocumentData
+    >
+  }
+
+  const querySnapshot = await getDocs(projectsQuery)
+  const fetchedProjects = querySnapshot.docs
+    .map((doc) => ({ id: doc.id, ...doc.data() }) as ProjectItemType)
+    .filter((project) => project.title.toLowerCase().includes(searchName.toLowerCase()))
+
+  return fetchedProjects
+}

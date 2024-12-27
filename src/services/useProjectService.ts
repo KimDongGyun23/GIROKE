@@ -7,6 +7,7 @@ import {
   deleteProject,
   fetchProjectData,
   fetchProjects,
+  searchProjects,
   updateProjectData,
 } from '@/services/projectService'
 import type {
@@ -170,4 +171,35 @@ export const useProjectUpdate = () => {
   }
 
   return { updateProject, error }
+}
+
+export const useProjectSearch = (activeTag: ProjectTagType, searchName: string) => {
+  const { userId, loading: authLoading } = useAuthState(auth)
+  const [projects, setProjects] = useState<ProjectItemType[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      if (authLoading || !userId) return
+
+      setLoading(true)
+      try {
+        const fetchedProjects = await searchProjects(userId, activeTag, searchName)
+        setProjects(fetchedProjects)
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err
+            : new Error('프로젝트 데이터를 가져오는 중에 오류가 발생했습니다.'),
+        )
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProjects()
+  }, [authLoading, userId, activeTag, searchName])
+
+  return { projects, loading: loading || authLoading, error }
 }
