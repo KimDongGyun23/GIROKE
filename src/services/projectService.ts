@@ -7,6 +7,7 @@ import {
   getDocs,
   query,
   setDoc,
+  updateDoc,
   where,
 } from 'firebase/firestore'
 import { v4 as uuidv4 } from 'uuid'
@@ -53,7 +54,7 @@ export const createProject = async (userId: string, formData: ProjectFormType) =
   return newProjectId
 }
 
-export const fetchProjectDetail = async (userId: string, projectId: string) => {
+export const fetchProjectData = async (userId: string, projectId: string) => {
   const projectDocRef = doc(db, 'users', userId, 'projects', projectId)
   const projectDoc = await getDoc(projectDocRef)
 
@@ -67,4 +68,13 @@ export const fetchProjectDetail = async (userId: string, projectId: string) => {
 export const deleteProject = async (userId: string, projectId: string) => {
   const projectDocRef = doc(db, 'users', userId, 'projects', projectId)
   await deleteDoc(projectDocRef)
+}
+
+export const updateProjectData = async (
+  userId: string,
+  projectId: string,
+  formData: Partial<ProjectDetailType>,
+) => {
+  const projectDocRef = doc(db, 'users', userId, 'projects', projectId)
+  await updateDoc(projectDocRef, formData)
 }

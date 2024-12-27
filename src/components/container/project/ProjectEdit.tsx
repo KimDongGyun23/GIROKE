@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
 import { FormProvider } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
-import { doc, getDoc, updateDoc } from 'firebase/firestore'
 
+import { ErrorMessage } from '@/components/view/ErrorMessage'
 import { ThumbIcon } from '@/components/view/icons/ActiveIcon'
 import { InputGroup } from '@/components/view/inputGroup'
+import { Loading } from '@/components/view/Loading'
 import { ModalEdit } from '@/components/view/modal/Modal'
 import { SubHeaderWithoutIcon } from '@/components/view/SubHeader'
-import { auth, db } from '@/firebase/firebase'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useProjectForm } from '@/hooks/useForms'
+import { useProjectData, useProjectUpdate } from '@/services/useProjectService'
 import type { ProjectDetailType } from '@/types/project'
 import { formatDate } from '@/utils/formatDate'
 
@@ -32,55 +33,31 @@ export const ProjectEdit = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const formMethod = useProjectForm()
+
   const { handleSubmit, setValue, getValues } = formMethod
+  const { projectData, loading, error } = useProjectData(id)
+  const { updateProject, error: updateError } = useProjectUpdate()
 
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
   const [satisfaction, setSatisfaction] = useState<number>(0)
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchProjectData = async () => {
-      if (!id) return
-      try {
-        const userId = auth.currentUser?.uid
-        if (!userId) {
-          console.error('User not authenticated')
-          return
+    if (projectData) {
+      Object.entries(projectData).forEach(([key, value]) => {
+        if (key !== 'id') {
+          setValue(key as keyof Omit<ProjectDetailType, 'id'>, value)
         }
-        const projectDocRef = doc(db, 'users', userId, 'projects', id)
-        const projectDoc = await getDoc(projectDocRef)
-        if (projectDoc.exists()) {
-          const data = projectDoc.data() as ProjectDetailType
-          Object.entries(data).forEach(([key, value]) => {
-            setValue(key as keyof Omit<ProjectDetailType, 'id'>, value)
-          })
-          setSatisfaction(data.satisfaction)
-        } else {
-          console.error('Project not found')
-        }
-      } catch (error) {
-        console.error('Error fetching project data:', error)
-      } finally {
-        setLoading(false)
-      }
+      })
+      setSatisfaction(projectData.satisfaction)
     }
-    fetchProjectData()
-  }, [id, setValue])
+  }, [projectData, setValue])
 
   const handleFormSubmit = async () => {
-    try {
-      const userId = auth.currentUser?.uid
-      if (!userId || !id) {
-        console.error('User not authenticated or project ID is missing')
-        return
-      }
-      const formData = getValues()
-      const projectDocRef = doc(db, 'users', userId, 'projects', id)
-      await updateDoc(projectDocRef, formData)
-      console.log('Project updated successfully')
+    if (!id) return
+    const formData = getValues()
+    const success = await updateProject(id, formData)
+    if (success) {
       openModal()
-    } catch (error) {
-      console.error('Error updating project:', error)
     }
   }
 
@@ -95,7 +72,15 @@ export const ProjectEdit = () => {
   }
 
   if (loading) {
-    return <div>Loading...</div>
+    return <Loading />
+  }
+
+  if (error || updateError) {
+    return (
+      <ErrorMessage>
+        {(error || updateError)?.message || '프로젝트 업데이트 중에 오류가 발생했습니다.'}
+      </ErrorMessage>
+    )
   }
 
   return (

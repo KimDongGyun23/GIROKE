@@ -5,8 +5,9 @@ import { useAuthState } from '@/hooks/useAuthState'
 import {
   createProject,
   deleteProject,
-  fetchProjectDetail,
+  fetchProjectData,
   fetchProjects,
+  updateProjectData,
 } from '@/services/projectService'
 import type {
   ProjectDetailType,
@@ -78,7 +79,7 @@ export const useProjectDetail = (projectId: string | undefined) => {
       if (authLoading || !userId || !projectId) return
 
       try {
-        const projectData = await fetchProjectDetail(userId, projectId)
+        const projectData = await fetchProjectData(userId, projectId)
         setProject(projectData)
       } catch (err) {
         setError(
@@ -115,4 +116,58 @@ export const useProjectDelete = () => {
   }
 
   return { handleDelete, error }
+}
+
+export const useProjectData = (projectId: string | undefined) => {
+  const { userId, loading: authLoading } = useAuthState(auth)
+  const [projectData, setProjectData] = useState<ProjectDetailType | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+
+  useEffect(() => {
+    const loadProjectData = async () => {
+      if (authLoading || !userId || !projectId) return
+
+      try {
+        const data = await fetchProjectData(userId, projectId)
+        setProjectData(data)
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err
+            : new Error('프로젝트 데이터를 가져오는 중에 오류가 발생했습니다.'),
+        )
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadProjectData()
+  }, [authLoading, userId, projectId])
+
+  return { projectData, loading: loading || authLoading, error }
+}
+
+export const useProjectUpdate = () => {
+  const { userId } = useAuthState(auth)
+  const [error, setError] = useState<Error | null>(null)
+
+  const updateProject = async (projectId: string, formData: Partial<ProjectDetailType>) => {
+    if (!userId || !projectId) {
+      setError(new Error('사용자가 인증되지 않았거나 ProjectID가 없습니다.'))
+      return false
+    }
+
+    try {
+      await updateProjectData(userId, projectId, formData)
+      return true
+    } catch (err) {
+      setError(
+        err instanceof Error ? err : new Error('프로젝트 업데이트 중에 오류가 발생했습니다.'),
+      )
+      return false
+    }
+  }
+
+  return { updateProject, error }
 }
