@@ -74,3 +74,17 @@ export const toggleNoteBookmark = async (
   await updateDoc(noteRef, { isBookmarked: newBookmarkStatus })
   return newBookmarkStatus
 }
+
+export const fetchNoteData = async (userId: string, noteId: string) => {
+  const noteRef = doc(db, 'users', userId, 'notes', noteId)
+  const noteSnap = await getDoc(noteRef)
+  if (noteSnap.exists()) {
+    return noteSnap.data() as NoteFormType
+  }
+  throw new Error('노트가 존재하지 않습니다.')
+}
+
+export const updateNoteData = async (userId: string, noteId: string, formData: NoteFormType) => {
+  const noteRef = doc(db, 'users', userId, 'notes', noteId)
+  await updateDoc(noteRef, formData)
+}

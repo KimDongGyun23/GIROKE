@@ -5,9 +5,11 @@ import { useAuthState } from '@/hooks/useAuthState'
 import {
   createNote,
   deleteNote,
+  fetchNoteData,
   fetchNoteDetail,
   fetchNotes,
   toggleNoteBookmark,
+  updateNoteData,
 } from '@/services/noteService'
 import type { NotedDetailType, NoteFormType, NoteItemType, NoteTagType } from '@/types/note'
 
@@ -130,4 +132,54 @@ export const useNoteBookmark = (noteId: string | undefined) => {
   }
 
   return { handleBookmarkToggle, error }
+}
+
+export const useNoteEditData = (noteId: string | undefined) => {
+  const { userId, loading: authLoading } = useAuthState(auth)
+  const [noteData, setNoteData] = useState<NoteFormType | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+
+  useEffect(() => {
+    const loadNoteData = async () => {
+      if (authLoading || !userId || !noteId) return
+
+      try {
+        const data = await fetchNoteData(userId, noteId)
+        setNoteData(data)
+      } catch (err) {
+        setError(
+          err instanceof Error ? err : new Error('노트를 가져오는 중에 오류가 발생했습니다.'),
+        )
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadNoteData()
+  }, [authLoading, userId, noteId])
+
+  return { noteData, loading: loading || authLoading, error }
+}
+
+export const useNoteEdit = (noteId: string | undefined) => {
+  const { userId } = useAuthState(auth)
+  const [error, setError] = useState<Error | null>(null)
+
+  const updateNote = async (formData: NoteFormType) => {
+    if (!userId || !noteId) {
+      setError(new Error('User not authenticated or note ID is missing'))
+      return false
+    }
+
+    try {
+      await updateNoteData(userId, noteId, formData)
+      return true
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Error updating note'))
+      return false
+    }
+  }
+
+  return { updateNote, error }
 }

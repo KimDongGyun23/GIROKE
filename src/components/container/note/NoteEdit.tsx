@@ -2,17 +2,18 @@ import { useEffect, useState } from 'react'
 import React from 'react'
 import { FormProvider } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
-import { doc, getDoc, updateDoc } from 'firebase/firestore'
 
 import { Button } from '@/components/view/Button'
+import { ErrorMessage } from '@/components/view/ErrorMessage'
 import { InputGroup } from '@/components/view/inputGroup'
+import { Loading } from '@/components/view/Loading'
 import { ModalEdit } from '@/components/view/modal/Modal'
 import { SubHeaderWithoutIcon } from '@/components/view/SubHeader'
 import { Tag } from '@/components/view/Tag'
-import { auth, db } from '@/firebase/firebase'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useNoteForm } from '@/hooks/useForms'
-import type { NoteFormType, NoteTagType } from '@/types/note'
+import { useNoteEdit, useNoteEditData } from '@/services/useNoteService'
+import type { NoteTagType } from '@/types/note'
 import { NOTE_TAGS } from '@/utils/constants'
 
 export const NoteEdit = () => {
@@ -24,52 +25,25 @@ export const NoteEdit = () => {
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
   const [paragraphs, setParagraphs] = useState<{ subTitle: string; content: string }[]>([])
   const [selectedTag, setSelectedTag] = useState<NoteTagType>('전체')
-  const [loading, setLoading] = useState(true)
+
+  const { noteData, loading, error: fetchError } = useNoteEditData(id)
+  const { updateNote, error: updateError } = useNoteEdit(id)
 
   useEffect(() => {
-    const fetchNote = async () => {
-      if (!id) return
-      try {
-        const userId = auth.currentUser?.uid
-        if (!userId) {
-          console.error('User not authenticated')
-          return
-        }
-        const noteRef = doc(db, 'users', userId, 'notes', id)
-        const noteSnap = await getDoc(noteRef)
-        if (noteSnap.exists()) {
-          const noteData = noteSnap.data() as NoteFormType
-          setValue('title', noteData.title)
-          setValue('tag', noteData.tag)
-          setValue('paragraphs', noteData.paragraphs)
-          setSelectedTag(noteData.tag)
-          setParagraphs(noteData.paragraphs)
-        } else {
-          console.error('Note not found')
-        }
-      } catch (error) {
-        console.error('Error fetching note:', error)
-      } finally {
-        setLoading(false)
-      }
+    if (noteData) {
+      setValue('title', noteData.title)
+      setValue('tag', noteData.tag)
+      setValue('paragraphs', noteData.paragraphs)
+      setSelectedTag(noteData.tag)
+      setParagraphs(noteData.paragraphs)
     }
-    fetchNote()
-  }, [id, setValue])
+  }, [noteData, setValue])
 
   const handleFormSubmit = async () => {
-    try {
-      const userId = auth.currentUser?.uid
-      if (!userId || !id) {
-        console.error('User not authenticated or note ID is missing')
-        return
-      }
-      const formData = getValues()
-      const noteRef = doc(db, 'users', userId, 'notes', id)
-      await updateDoc(noteRef, formData)
-      console.log('Note updated successfully')
+    const formData = getValues()
+    const success = await updateNote(formData)
+    if (success) {
       openModal()
-    } catch (error) {
-      console.error('Error updating note:', error)
     }
   }
 
@@ -92,7 +66,11 @@ export const NoteEdit = () => {
   }
 
   if (loading) {
-    return <div>Loading...</div>
+    return <Loading />
+  }
+
+  if (fetchError || updateError) {
+    return <ErrorMessage>{(fetchError || updateError)?.message}</ErrorMessage>
   }
 
   return (
