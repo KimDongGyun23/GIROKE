@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { auth, db } from '@/firebase/firebase'
 import type { TermFormType, TermItemType, TermTagsType } from '@/types/term'
+import { ERROR_MESSAGE } from '@/utils/constants'
 import { formatDate } from '@/utils/formatDate'
 
 export const fetchTerms = async (
@@ -46,7 +47,7 @@ export const fetchTerms = async (
 
 export const createTerm = async (formData: TermFormType) => {
   const userId = auth.currentUser?.uid
-  if (!userId) throw new Error('사용자가 인증되지 않았습니다.')
+  if (!userId) throw new Error(ERROR_MESSAGE.auth)
 
   const newTermId = uuidv4()
   const userDocRef = doc(db, 'users', userId)
@@ -71,13 +72,13 @@ export const fetchTermDetail = async (userId: string, termId: string) => {
   if (termDoc.exists()) {
     return { id: termDoc.id, ...termDoc.data() } as TermItemType
   } else {
-    throw new Error('해당하는 용어가 존재하지 않습니다.')
+    throw new Error(ERROR_MESSAGE.noData)
   }
 }
 
 export const toggleBookmark = async (termId: string, currentStatus: boolean) => {
   const userId = auth.currentUser?.uid
-  if (!userId) throw new Error('사용자가 인증되지 않았습니다.')
+  if (!userId) throw new Error(ERROR_MESSAGE.auth)
 
   const termDocRef = doc(db, 'users', userId, 'terms', termId)
   const newBookmarkStatus = !currentStatus
@@ -106,21 +107,21 @@ export const toggleTermBookmark = async (
 export const fetchTermData = async (id: string) => {
   const userId = auth.currentUser?.uid
   if (!userId) {
-    throw new Error('사용자가 인증되지 않았습니다.')
+    throw new Error(ERROR_MESSAGE.auth)
   }
   const termDocRef = doc(db, 'users', userId, 'terms', id)
   const termDoc = await getDoc(termDocRef)
   if (termDoc.exists()) {
     return termDoc.data() as TermItemType
   } else {
-    throw new Error('용어가 존재하지 않습니다.')
+    throw new Error(ERROR_MESSAGE.noData)
   }
 }
 
 export const updateTermData = async (id: string, formData: Omit<TermItemType, 'id'>) => {
   const userId = auth.currentUser?.uid
   if (!userId) {
-    throw new Error('사용자가 인증되지 않았습니다.')
+    throw new Error(ERROR_MESSAGE.auth)
   }
   const termDocRef = doc(db, 'users', userId, 'terms', id)
   await updateDoc(termDocRef, formData)
@@ -129,7 +130,7 @@ export const updateTermData = async (id: string, formData: Omit<TermItemType, 'i
 export const fetchTermsByTagAndSearch = async (activeTag: string, searchName: string) => {
   const userId = auth.currentUser?.uid
   if (!userId) {
-    throw new Error('User not authenticated')
+    throw new Error(ERROR_MESSAGE.auth)
   }
 
   const userTermsRef = collection(db, 'users', userId, 'terms')

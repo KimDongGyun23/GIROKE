@@ -39,10 +39,8 @@ export const Project = () => {
           <Loading />
         ) : error ? (
           <EmptyMessage>{error.message}</EmptyMessage>
-        ) : projects.length > 0 ? (
-          projects.map((project) => <ProjectItem key={project.id} project={project} />)
         ) : (
-          <EmptyMessage>프로젝트가 존재하지 않습니다.</EmptyMessage>
+          projects.map((project) => <ProjectItem key={project.id} project={project} />)
         )}
       </section>
 

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { TermItem } from '@/components/domain/TermItem'
-import { EmptyMessage, ErrorMessage } from '@/components/view/ErrorMessage'
+import { EmptyMessage } from '@/components/view/ErrorMessage'
 import { BackArrowIcon } from '@/components/view/icons/NonActiveIcon'
 import { Loading } from '@/components/view/Loading'
 import { Search } from '@/components/view/Search'
@@ -21,10 +21,6 @@ export const TermSearch = () => {
 
   const handleBackClick = () => navigate('/term')
   const handleTagClick = (tag: TermTagsType) => setActiveTag(tag)
-
-  if (error) {
-    return <ErrorMessage>예상치 못한 오류가 발생했습니다.</ErrorMessage>
-  }
 
   return (
     <main className="flex-column mx-4 h-full pt-5">
@@ -48,10 +44,10 @@ export const TermSearch = () => {
       <section className="flex-column scroll grow">
         {loading ? (
           <Loading />
-        ) : terms.length > 0 ? (
-          terms.map((term) => <TermItem key={term.id} term={term} />)
+        ) : error ? (
+          <EmptyMessage>{error?.message}</EmptyMessage>
         ) : (
-          <EmptyMessage>해당하는 용어가 존재하지 않습니다.</EmptyMessage>
+          terms.map((term) => <TermItem key={term.id} term={term} />)
         )}
       </section>
     </main>

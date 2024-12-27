@@ -59,11 +59,7 @@ export const HomeEdit = () => {
   }
 
   if (fetchError || updateError || !todo)
-    return (
-      <EmptyMessage>
-        {(fetchError || updateError)?.message || '할일이 존재하지 않습니다.'}
-      </EmptyMessage>
-    )
+    return <EmptyMessage>{(fetchError || updateError)?.message}</EmptyMessage>
 
   return (
     <>

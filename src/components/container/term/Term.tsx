@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 import { TermItem } from '@/components/domain/TermItem'
-import { EmptyMessage, ErrorMessage } from '@/components/view/ErrorMessage'
+import { EmptyMessage } from '@/components/view/ErrorMessage'
 import { Loading } from '@/components/view/Loading'
 import { PostAdditionButton } from '@/components/view/PostAdditionButton'
 import { Search } from '@/components/view/Search'
@@ -21,10 +21,6 @@ export const Term = () => {
 
   const isLoading = authLoading || termsLoading
 
-  if (error) {
-    return <ErrorMessage>예상치 못한 오류가 발생했습니다.</ErrorMessage>
-  }
-
   return (
     <main className="flex-column mx-4 h-full">
       <Search tabName="term" />
@@ -40,10 +36,10 @@ export const Term = () => {
       <section className="flex-column scroll grow">
         {isLoading ? (
           <Loading />
-        ) : terms.length > 0 ? (
-          terms.map((term) => <TermItem key={term.id} term={term} />)
+        ) : error ? (
+          <EmptyMessage>{error?.message}</EmptyMessage>
         ) : (
-          <EmptyMessage>새로운 용어를 등록해주세요.</EmptyMessage>
+          terms.map((term) => <TermItem key={term.id} term={term} />)
         )}
       </section>
 

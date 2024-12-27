@@ -33,10 +33,8 @@ export const Note = () => {
           <Loading />
         ) : error ? (
           <EmptyMessage>{error.message}</EmptyMessage>
-        ) : notes.length > 0 ? (
-          notes.map((note) => <NoteItem key={note.id} note={note} />)
         ) : (
-          <EmptyMessage>노트가 존재하지 않습니다.</EmptyMessage>
+          notes.map((note) => <NoteItem key={note.id} note={note} />)
         )}
       </section>
 

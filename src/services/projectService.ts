@@ -19,7 +19,7 @@ import type {
   ProjectItemType,
   ProjectTagType,
 } from '@/types/project'
-import { PROJECT_TAGS } from '@/utils/constants'
+import { ERROR_MESSAGE, PROJECT_TAGS } from '@/utils/constants'
 import { formatDate } from '@/utils/formatDate'
 
 export const fetchProjects = async (userId: string, activeTag: ProjectTagType) => {
@@ -61,7 +61,7 @@ export const fetchProjectData = async (userId: string, projectId: string) => {
   if (projectDoc.exists()) {
     return { id: projectDoc.id, ...projectDoc.data() } as ProjectDetailType
   } else {
-    throw new Error('프로젝트가 존재하지 않습니다.')
+    throw new Error(ERROR_MESSAGE.noData)
   }
 }
 

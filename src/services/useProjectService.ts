@@ -16,6 +16,7 @@ import type {
   ProjectItemType,
   ProjectTagType,
 } from '@/types/project'
+import { ERROR_MESSAGE } from '@/utils/constants'
 
 export const useProjects = (userId: string | null, activeTag: ProjectTagType) => {
   const [projects, setProjects] = useState<ProjectItemType[]>([])
@@ -31,7 +32,7 @@ export const useProjects = (userId: string | null, activeTag: ProjectTagType) =>
         const fetchedProjects = await fetchProjects(userId, activeTag)
         setProjects(fetchedProjects)
       } catch (error) {
-        setError(error instanceof Error ? error : new Error('예상치 못한 오류가 발생했습니다.'))
+        setError(error instanceof Error ? error : new Error(ERROR_MESSAGE.fetch))
       } finally {
         setLoading(false)
       }
@@ -50,7 +51,7 @@ export const useProjectCreate = () => {
 
   const handleCreateProject = async (formData: ProjectFormType) => {
     if (authLoading || !userId) {
-      setError(new Error('사용자가 인증되지 않았습니다'))
+      setError(new Error(ERROR_MESSAGE.auth))
       return null
     }
 
@@ -59,9 +60,7 @@ export const useProjectCreate = () => {
       setNewProjectId(createdProjectId)
       return createdProjectId
     } catch (err) {
-      setError(
-        err instanceof Error ? err : new Error('프로젝트 생성 과정에서 오류가 발생했습니다.'),
-      )
+      setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.create))
       return null
     }
   }
@@ -83,9 +82,7 @@ export const useProjectDetail = (projectId: string | undefined) => {
         const projectData = await fetchProjectData(userId, projectId)
         setProject(projectData)
       } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error('상세 정보를 가져오는 중 오류가 발생했습니다.'),
-        )
+        setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.fetch))
       } finally {
         setLoading(false)
       }
@@ -103,7 +100,7 @@ export const useProjectDelete = () => {
 
   const handleDelete = async (projectId: string) => {
     if (!userId || !projectId) {
-      setError(new Error('사용자가 인증되지 않았거나 ProjectID가 없습니다.'))
+      setError(new Error(ERROR_MESSAGE.auth))
       return false
     }
 
@@ -111,7 +108,7 @@ export const useProjectDelete = () => {
       await deleteProject(userId, projectId)
       return true
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('프로젝트 삭제 중 오류가 발생했습니다.'))
+      setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.delete))
       return false
     }
   }
@@ -133,11 +130,7 @@ export const useProjectData = (projectId: string | undefined) => {
         const data = await fetchProjectData(userId, projectId)
         setProjectData(data)
       } catch (err) {
-        setError(
-          err instanceof Error
-            ? err
-            : new Error('프로젝트 데이터를 가져오는 중에 오류가 발생했습니다.'),
-        )
+        setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.fetch))
       } finally {
         setLoading(false)
       }
@@ -155,7 +148,7 @@ export const useProjectUpdate = () => {
 
   const updateProject = async (projectId: string, formData: Partial<ProjectDetailType>) => {
     if (!userId || !projectId) {
-      setError(new Error('사용자가 인증되지 않았거나 ProjectID가 없습니다.'))
+      setError(new Error(ERROR_MESSAGE.auth))
       return false
     }
 
@@ -163,9 +156,7 @@ export const useProjectUpdate = () => {
       await updateProjectData(userId, projectId, formData)
       return true
     } catch (err) {
-      setError(
-        err instanceof Error ? err : new Error('프로젝트 업데이트 중에 오류가 발생했습니다.'),
-      )
+      setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.update))
       return false
     }
   }
@@ -188,11 +179,7 @@ export const useProjectSearch = (activeTag: ProjectTagType, searchName: string) 
         const fetchedProjects = await searchProjects(userId, activeTag, searchName)
         setProjects(fetchedProjects)
       } catch (err) {
-        setError(
-          err instanceof Error
-            ? err
-            : new Error('프로젝트 데이터를 가져오는 중에 오류가 발생했습니다.'),
-        )
+        setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.fetch))
       } finally {
         setLoading(false)
       }

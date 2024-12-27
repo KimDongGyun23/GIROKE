@@ -44,7 +44,7 @@ export const ProjectDetail = () => {
   }
 
   if (error || deleteError || !project) {
-    return <ErrorMessage>{error?.message || '해당 프로젝트가 존재하지 않습니다.'}</ErrorMessage>
+    return <ErrorMessage>{error?.message}</ErrorMessage>
   }
 
   const projectDetails = [

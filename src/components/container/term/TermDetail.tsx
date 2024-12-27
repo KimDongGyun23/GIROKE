@@ -42,7 +42,7 @@ export const TermDetail = () => {
   }
 
   if (termError || bookmarkError || deleteError || !term) {
-    return <ErrorMessage>{error?.message || '해당 용어가 존재하지 않습니다.'}</ErrorMessage>
+    return <ErrorMessage>{error?.message}</ErrorMessage>
   }
 
   return (

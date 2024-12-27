@@ -5,6 +5,7 @@ import { useAuthState } from '@/hooks/useAuthState'
 import { createTask, fetchMonthlyTasks, fetchTodo, updateTodo } from '@/services/homeService'
 import type { CalendarValue } from '@/types/common'
 import type { TodoItemType } from '@/types/home'
+import { ERROR_MESSAGE } from '@/utils/constants'
 import { formatDate } from '@/utils/formatDate'
 
 export const useMonthlyTasks = (selectedDate: CalendarValue) => {
@@ -26,7 +27,7 @@ export const useMonthlyTasks = (selectedDate: CalendarValue) => {
         setScheduledDates(Object.keys(tasks))
         updateSelectedDateTasks(selectedDate as Date)
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('일정을 불러오지 못했습니다.'))
+        setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.fetch))
       } finally {
         setLoading(false)
       }
@@ -38,6 +39,10 @@ export const useMonthlyTasks = (selectedDate: CalendarValue) => {
   const updateSelectedDateTasks = (date: Date) => {
     const formattedDate = formatDate(new Date(date), 'default')
     setSelectedDateTasks(monthlyTasks[formattedDate] || [])
+
+    if (!monthlyTasks[formattedDate]) {
+      setError(new Error(ERROR_MESSAGE.noData))
+    }
   }
 
   useEffect(() => {
@@ -67,7 +72,7 @@ export const useTaskCreate = () => {
 
   const handleCreateTask = async (formData: { todo: string; date: Date }) => {
     if (!userId) {
-      setError(new Error('사용자가 인증되지 않았습니다.'))
+      setError(new Error(ERROR_MESSAGE.auth))
       return null
     }
 
@@ -75,7 +80,7 @@ export const useTaskCreate = () => {
       const newTask = await createTask(userId, formData)
       return newTask
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('할일을 생성하는 중 오류가 발생했습니다.'))
+      setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.create))
       return null
     }
   }
@@ -98,10 +103,10 @@ export const useTaskDetail = (todoId: string | undefined) => {
         if (todoData) {
           setTodo(todoData)
         } else {
-          setError(new Error('Todo not found'))
+          setError(new Error(ERROR_MESSAGE.noData))
         }
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Error fetching todo'))
+        setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.fetch))
       } finally {
         setLoading(false)
       }
@@ -119,7 +124,7 @@ export const useTaskUpdate = () => {
 
   const handleUpdateTodo = async (todoId: string, formData: { todo: string; date: Date }) => {
     if (!userId) {
-      setError(new Error('User not authenticated'))
+      setError(new Error(ERROR_MESSAGE.auth))
       return false
     }
 
@@ -127,7 +132,7 @@ export const useTaskUpdate = () => {
       await updateTodo(userId, todoId, formData)
       return true
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Error updating todo'))
+      setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.update))
       return false
     }
   }

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { NoteItem } from '@/components/domain/NoteItem'
-import { EmptyMessage, ErrorMessage } from '@/components/view/ErrorMessage'
+import { ErrorMessage } from '@/components/view/ErrorMessage'
 import { BackArrowIcon } from '@/components/view/icons/NonActiveIcon'
 import { Loading } from '@/components/view/Loading'
 import { Search } from '@/components/view/Search'
@@ -22,7 +22,7 @@ export const NoteSearch = () => {
   const handleTagClick = (tag: NoteTagType) => setActiveTag(tag)
 
   if (error) {
-    return <ErrorMessage>{error.message || '예상치 못한 오류가 발생했습니다.'}</ErrorMessage>
+    return <ErrorMessage>{error.message}</ErrorMessage>
   }
 
   return (
@@ -45,13 +45,7 @@ export const NoteSearch = () => {
       </div>
 
       <section className="flex-column scroll grow">
-        {loading ? (
-          <Loading />
-        ) : notes.length > 0 ? (
-          notes.map((note) => <NoteItem key={note.id} note={note} />)
-        ) : (
-          <EmptyMessage>해당하는 프로젝트가 존재하지 않습니다.</EmptyMessage>
-        )}
+        {loading ? <Loading /> : notes.map((note) => <NoteItem key={note.id} note={note} />)}
       </section>
     </main>
   )

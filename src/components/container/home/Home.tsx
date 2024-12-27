@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 import { HomeCalender } from '@/components/domain/HomeCalendar'
 import { TodoItem } from '@/components/domain/TodoItem'
-import { ErrorMessage } from '@/components/view/ErrorMessage'
+import { EmptyMessage } from '@/components/view/ErrorMessage'
 import { Loading } from '@/components/view/Loading'
 import { useMonthlyTasks } from '@/services/useHomeService'
 import type { CalendarValue } from '@/types/common'
@@ -29,10 +29,6 @@ export const Home = () => {
     return <Loading />
   }
 
-  if (error) {
-    return <ErrorMessage>{error.message}</ErrorMessage>
-  }
-
   return (
     <main className="mx-4">
       <HomeCalender
@@ -53,9 +49,13 @@ export const Home = () => {
         </div>
 
         <div className="flex-column my-4 gap-2">
-          {selectedDateTasks.map((task) => (
-            <TodoItem key={task.id} task={task} onUpdate={handleTaskUpdate} />
-          ))}
+          {error ? (
+            <EmptyMessage>{error?.message}</EmptyMessage>
+          ) : (
+            selectedDateTasks.map((task) => (
+              <TodoItem key={task.id} task={task} onUpdate={handleTaskUpdate} />
+            ))
+          )}
         </div>
       </section>
     </main>

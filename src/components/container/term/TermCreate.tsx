@@ -38,7 +38,7 @@ export const TermCreate = () => {
   }
 
   if (error) {
-    return <ErrorMessage>예상치 못한 오류가 발생했습니다.</ErrorMessage>
+    return <ErrorMessage>{error?.message}</ErrorMessage>
   }
 
   return (

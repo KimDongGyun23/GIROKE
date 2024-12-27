@@ -76,11 +76,7 @@ export const ProjectEdit = () => {
   }
 
   if (error || updateError) {
-    return (
-      <ErrorMessage>
-        {(error || updateError)?.message || '프로젝트 업데이트 중에 오류가 발생했습니다.'}
-      </ErrorMessage>
-    )
+    return <ErrorMessage>{(error || updateError)?.message}</ErrorMessage>
   }
 
   return (

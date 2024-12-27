@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { db } from '@/firebase/firebase'
 import type { NotedDetailType, NoteFormType, NoteItemType, NoteTagType } from '@/types/note'
+import { ERROR_MESSAGE } from '@/utils/constants'
 import { formatDate } from '@/utils/formatDate'
 
 export const fetchNotes = async (userId: string, activeTag: NoteTagType) => {
@@ -56,7 +57,7 @@ export const fetchNoteDetail = async (userId: string, noteId: string) => {
   if (noteSnap.exists()) {
     return { id: noteSnap.id, ...noteSnap.data() } as NotedDetailType
   }
-  throw new Error('노트가 존재하지 않습니다.')
+  throw new Error(ERROR_MESSAGE.noData)
 }
 
 export const deleteNote = async (userId: string, noteId: string) => {
@@ -81,7 +82,7 @@ export const fetchNoteData = async (userId: string, noteId: string) => {
   if (noteSnap.exists()) {
     return noteSnap.data() as NoteFormType
   }
-  throw new Error('노트가 존재하지 않습니다.')
+  throw new Error(ERROR_MESSAGE.noData)
 }
 
 export const updateNoteData = async (userId: string, noteId: string, formData: NoteFormType) => {

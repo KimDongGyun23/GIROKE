@@ -13,6 +13,7 @@ import {
   updateNoteData,
 } from '@/services/noteService'
 import type { NotedDetailType, NoteFormType, NoteItemType, NoteTagType } from '@/types/note'
+import { ERROR_MESSAGE } from '@/utils/constants'
 
 export const useNotes = (activeTag: NoteTagType) => {
   const { userId, loading: authLoading } = useAuthState(auth)
@@ -29,9 +30,7 @@ export const useNotes = (activeTag: NoteTagType) => {
         const fetchedNotes = await fetchNotes(userId, activeTag)
         setNotes(fetchedNotes)
       } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error('노트 목록을 가져오는 중에 오류가 발생했습니다.'),
-        )
+        setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.fetch))
       } finally {
         setLoading(false)
       }
@@ -50,7 +49,7 @@ export const useNoteCreate = () => {
 
   const handleCreateNote = async (data: NoteFormType, selectedTag: NoteTagType) => {
     if (!userId) {
-      setError(new Error('사용자가 인증되지 않았습니다.'))
+      setError(new Error(ERROR_MESSAGE.auth))
       return null
     }
 
@@ -59,7 +58,7 @@ export const useNoteCreate = () => {
       setNewNoteId(createdNoteId)
       return createdNoteId
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('노트 생성 중에 오류가 발생했습니다.'))
+      setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.create))
       return null
     }
   }
@@ -81,9 +80,7 @@ export const useNoteData = (noteId: string | undefined) => {
         const noteData = await fetchNoteDetail(userId, noteId)
         setNote(noteData)
       } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error('노트를 가져오는 중에 오류가 발생했습니다.'),
-        )
+        setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.fetch))
       } finally {
         setLoading(false)
       }
@@ -101,14 +98,14 @@ export const useNoteDelete = (noteId: string | undefined) => {
 
   const handleDelete = async () => {
     if (!userId || !noteId) {
-      setError(new Error('사용자가 인증되지 않았거나 NoteID가 없습니다.'))
+      setError(new Error(ERROR_MESSAGE.auth))
       return false
     }
     try {
       await deleteNote(userId, noteId)
       return true
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('노트를 삭제하는 중에 오류가 발생했습니다.'))
+      setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.delete))
       return false
     }
   }
@@ -122,13 +119,13 @@ export const useNoteBookmark = (noteId: string | undefined) => {
 
   const handleBookmarkToggle = async (currentStatus: boolean) => {
     if (!userId || !noteId) {
-      setError(new Error('사용자가 인증되지 않았거나 NoteID가 없습니다.'))
+      setError(new Error(ERROR_MESSAGE.auth))
       return
     }
     try {
       return await toggleNoteBookmark(userId, noteId, currentStatus)
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('북마킹 중에 오류가 발생했습니다.'))
+      setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.bookmark))
     }
   }
 
@@ -149,9 +146,7 @@ export const useNoteEditData = (noteId: string | undefined) => {
         const data = await fetchNoteData(userId, noteId)
         setNoteData(data)
       } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error('노트를 가져오는 중에 오류가 발생했습니다.'),
-        )
+        setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.fetch))
       } finally {
         setLoading(false)
       }
@@ -169,7 +164,7 @@ export const useNoteEdit = (noteId: string | undefined) => {
 
   const updateNote = async (formData: NoteFormType) => {
     if (!userId || !noteId) {
-      setError(new Error('사용자가 인증되지 않았거나 NoteID가 없습니다.'))
+      setError(new Error(ERROR_MESSAGE.auth))
       return false
     }
 
@@ -177,7 +172,7 @@ export const useNoteEdit = (noteId: string | undefined) => {
       await updateNoteData(userId, noteId, formData)
       return true
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('업데이트 중에 오류가 발생했습니다.'))
+      setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.update))
       return false
     }
   }
@@ -200,9 +195,7 @@ export const useNoteSearch = (activeTag: NoteTagType, searchName: string) => {
         const fetchedNotes = await searchNotes(userId, activeTag, searchName)
         setNotes(fetchedNotes)
       } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error('데이터를 불러오는 중에 오류가 발생했습니다.'),
-        )
+        setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.fetch))
       } finally {
         setLoading(false)
       }

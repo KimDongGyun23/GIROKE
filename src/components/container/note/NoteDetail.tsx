@@ -44,7 +44,7 @@ export const NoteDetail = () => {
   }
 
   if (error || !note) {
-    return <ErrorMessage>{error?.message || '노트가 존재하지 않습니다.'}</ErrorMessage>
+    return <ErrorMessage>{error?.message}</ErrorMessage>
   }
 
   return (

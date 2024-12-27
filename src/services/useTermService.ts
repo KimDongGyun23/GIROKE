@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { auth } from '@/firebase/firebase'
 import { useAuthState } from '@/hooks/useAuthState'
 import type { TermFormType, TermItemType, TermTagsType } from '@/types/term'
+import { ERROR_MESSAGE } from '@/utils/constants'
 
 import {
   createTerm,
@@ -32,7 +33,7 @@ export const useTerms = (userId: string | null, activeTag: TermTagsType) => {
         const fetchedTerms = await fetchTerms(userId, activeTag)
         setTerms(fetchedTerms)
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('예상치 못한 오류가 발생했습니다.'))
+        setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.fetch))
       } finally {
         setLoading(false)
       }
@@ -55,7 +56,7 @@ export const useTermCreate = () => {
       setError(null)
       return createdTermId
     } catch (error) {
-      setError(error instanceof Error ? error : new Error('예상치 못한 오류가 발생했습니다.'))
+      setError(error instanceof Error ? error : new Error(ERROR_MESSAGE.create))
       throw error
     }
   }
@@ -75,7 +76,7 @@ export function useTermDetail(termId: string | undefined) {
     }
 
     if (!userId || !termId) {
-      setError(new Error('유저가 존재하지 않거나 TermID가 없습니다.'))
+      setError(new Error(ERROR_MESSAGE.auth))
       setLoading(false)
       return
     }
@@ -85,7 +86,7 @@ export function useTermDetail(termId: string | undefined) {
         const termData = await fetchTermDetail(userId, termId)
         setTerm(termData)
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('예상치 못한 오류가 발생했습니다.'))
+        setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.fetch))
       } finally {
         setLoading(false)
       }
@@ -104,7 +105,7 @@ export const useTermDelete = (termId: string | undefined) => {
 
   const handleDelete = async (closeModal: () => void) => {
     if (authLoading || !userId || !termId) {
-      setError(new Error('유저가 존재하지 않거나 TermID가 없습니다.'))
+      setError(new Error(ERROR_MESSAGE.auth))
       return
     }
 
@@ -113,7 +114,7 @@ export const useTermDelete = (termId: string | undefined) => {
       closeModal()
       navigate('/term', { replace: true })
     } catch (error) {
-      setError(error instanceof Error ? error : new Error('삭제 중 오류가 발생했습니다.'))
+      setError(error instanceof Error ? error : new Error(ERROR_MESSAGE.delete))
     }
   }
 
@@ -130,7 +131,7 @@ export const useTermBookmark = (
 
   const handleBookmarkToggle = async (currentBookmarkStatus: boolean) => {
     if (authLoading || !termId || !userId) {
-      setError(new Error('유저가 존재하지 않거나 TermID가 없습니다.'))
+      setError(new Error(ERROR_MESSAGE.auth))
       return
     }
 
@@ -148,7 +149,7 @@ export const useTermBookmark = (
 
       return newBookmarkStatus
     } catch {
-      setError(new Error('북마킹 과정에서 오류가 발생했습니다.'))
+      setError(new Error(ERROR_MESSAGE.bookmark))
       return null
     }
   }
@@ -168,11 +169,7 @@ export const useTermData = (id: string | undefined) => {
         const data = await fetchTermData(id)
         setTermData(data)
       } catch (error) {
-        setError(
-          error instanceof Error
-            ? error
-            : new Error('데이터를 불러오는 과정에서 오류가 발생했습니다.'),
-        )
+        setError(error instanceof Error ? error : new Error(ERROR_MESSAGE.fetch))
       } finally {
         setLoading(false)
       }
@@ -191,9 +188,7 @@ export const useTermUpdate = (id: string | undefined) => {
     try {
       await updateTermData(id, formData)
     } catch (error) {
-      setError(
-        error instanceof Error ? error : new Error('업데이트 하는 과정에서 오류가 발생했습니다.'),
-      )
+      setError(error instanceof Error ? error : new Error(ERROR_MESSAGE.update))
       throw error
     }
   }
@@ -214,7 +209,7 @@ export const useTermSearch = (activeTag: TermTagsType, searchName: string) => {
         const fetchedTerms = await fetchTermsByTagAndSearch(activeTag, searchName)
         setTerms(fetchedTerms)
       } catch (error) {
-        setError(error instanceof Error ? error : new Error('예상치 못한 오류가 발생했습니다.'))
+        setError(error instanceof Error ? error : new Error(ERROR_MESSAGE.fetch))
       } finally {
         setLoading(false)
       }

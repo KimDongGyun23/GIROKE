@@ -5,6 +5,7 @@ import { useAuthState } from '@/hooks/useAuthState'
 import { fetchBookmarkedNotes, fetchBookmarkedTerms } from '@/services/bookmarkService'
 import type { NoteItemType, NoteTagType } from '@/types/note'
 import type { TermItemType, TermTagsType } from '@/types/term'
+import { ERROR_MESSAGE } from '@/utils/constants'
 
 export const useBookmarkedTerms = (activeTag: TermTagsType) => {
   const { userId, loading: authLoading } = useAuthState(auth)
@@ -21,7 +22,7 @@ export const useBookmarkedTerms = (activeTag: TermTagsType) => {
         const terms = await fetchBookmarkedTerms(userId, activeTag)
         setBookmarkedTerms(terms)
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('북마크를 가져오는데에 실패했습니다.'))
+        setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.fetch))
       } finally {
         setLoading(false)
       }
@@ -48,7 +49,7 @@ export const useBookmarkedNotes = (activeTag: NoteTagType) => {
         const notes = await fetchBookmarkedNotes(userId, activeTag)
         setBookmarkedNotes(notes)
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('북마크를 가져오는데에 실패했습니다.'))
+        setError(err instanceof Error ? err : new Error(ERROR_MESSAGE.fetch))
       } finally {
         setLoading(false)
       }

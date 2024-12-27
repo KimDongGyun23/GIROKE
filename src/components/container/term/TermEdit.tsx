@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { FormProvider } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 
+import { ErrorMessage } from '@/components/view/ErrorMessage'
 import { InputGroup } from '@/components/view/inputGroup'
 import { Loading } from '@/components/view/Loading'
 import { ModalEdit } from '@/components/view/modal/Modal'
@@ -59,7 +60,7 @@ export const TermEdit = () => {
   }
 
   if (fetchError || updateError) {
-    return <div>Error: {(fetchError || updateError)?.message}</div>
+    return <ErrorMessage>{(fetchError || updateError)?.message}</ErrorMessage>
   }
 
   return (
