@@ -2,20 +2,18 @@ import { useState } from 'react'
 import React from 'react'
 import { FormProvider, useFieldArray } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import { collection, doc, setDoc } from 'firebase/firestore'
-import { v4 as uuidv4 } from 'uuid'
 
 import { Button } from '@/components/view/Button'
+import { ErrorMessage } from '@/components/view/ErrorMessage'
 import { InputGroup } from '@/components/view/inputGroup'
 import { ModalCreate } from '@/components/view/modal/Modal'
 import { SubHeaderWithoutIcon } from '@/components/view/SubHeader'
 import { Tag } from '@/components/view/Tag'
-import { auth, db } from '@/firebase/firebase'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useNoteForm } from '@/hooks/useForms'
+import { useNoteCreate } from '@/services/useNoteService'
 import type { NoteFormType, NoteTagType } from '@/types/note'
 import { NOTE_TAGS } from '@/utils/constants'
-import { formatDate } from '@/utils/formatDate'
 
 export const NoteCreate = () => {
   const navigate = useNavigate()
@@ -28,33 +26,12 @@ export const NoteCreate = () => {
 
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
   const [selectedTag, setSelectedTag] = useState<NoteTagType>(NOTE_TAGS[0])
-  const [newNoteId, setNewNoteId] = useState<string | null>(null)
+  const { handleCreateNote, newNoteId, error } = useNoteCreate()
 
   const handleFormSubmit = async (data: NoteFormType) => {
-    try {
-      console.log(data)
-      const userId = auth.currentUser?.uid
-      if (!userId) {
-        console.error('User not authenticated')
-        return
-      }
-
-      const newNoteId = uuidv4()
-      const userNotesRef = collection(db, 'users', userId, 'notes')
-      const newNoteDocRef = doc(userNotesRef, newNoteId)
-
-      await setDoc(newNoteDocRef, {
-        id: newNoteId,
-        tag: selectedTag,
-        title: data.title,
-        paragraphs: data.paragraphs,
-        createdAt: formatDate(new Date(), 'dotted'),
-      })
-
-      setNewNoteId(newNoteId)
+    const createdNoteId = await handleCreateNote(data, selectedTag)
+    if (createdNoteId) {
       openModal()
-    } catch (error) {
-      console.error('Error creating note: ', error)
     }
   }
 
@@ -71,6 +48,10 @@ export const NoteCreate = () => {
   const handleTagSelect = (tag: NoteTagType) => {
     setSelectedTag(tag)
     setValue('tag', tag)
+  }
+
+  if (error) {
+    return <ErrorMessage>{error.message || '예상치 못한 오류가 발생했습니다.'}</ErrorMessage>
   }
 
   return (

@@ -1,93 +1,38 @@
-import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore'
 
 import { BottomBookmark } from '@/components/view/BottomBookmark'
+import { ErrorMessage } from '@/components/view/ErrorMessage'
 import { InputGroup } from '@/components/view/inputGroup'
 import { Kebab } from '@/components/view/Kebab'
+import { Loading } from '@/components/view/Loading'
 import { ModalDelete } from '@/components/view/modal/Modal'
 import { SubHeaderWithIcon } from '@/components/view/SubHeader'
 import { Tag } from '@/components/view/Tag'
-import { auth, db } from '@/firebase/firebase'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useToggle } from '@/hooks/useToggle'
-import type { NotedDetailType } from '@/types/note'
+import { useNoteBookmark, useNoteData, useNoteDelete } from '@/services/useNoteService'
 
 export const NoteDetail = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const [isKebabOpen, toggleKebabState] = useToggle(false)
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
-  const [note, setNote] = useState<NotedDetailType | null>(null)
-  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const fetchNote = async () => {
-      try {
-        const userId = auth.currentUser?.uid
-        if (!userId || !id) {
-          console.error('User not authenticated or note ID is missing')
-          return
-        }
-        const noteRef = doc(db, 'users', userId, 'notes', id)
-        const noteSnap = await getDoc(noteRef)
-        if (noteSnap.exists()) {
-          setNote({ id: noteSnap.id, ...noteSnap.data() } as NotedDetailType)
-        } else {
-          console.error('Note not found')
-        }
-      } catch (error) {
-        console.error('Error fetching note:', error)
-      } finally {
-        setLoading(false)
-      }
+  const { note, setNote, loading, error: fetchError } = useNoteData(id)
+  const { handleDelete, error: deleteError } = useNoteDelete(id)
+  const { handleBookmarkToggle, error: bookmarkError } = useNoteBookmark(id)
+
+  const error = fetchError || deleteError || bookmarkError
+
+  const onBookmarkToggle = async () => {
+    if (!note) return
+    const newStatus = await handleBookmarkToggle(note.isBookmarked)
+    if (newStatus !== undefined) {
+      setNote((prevNote) => ({ ...prevNote!, isBookmarked: newStatus }))
     }
-
-    fetchNote()
-  }, [id])
+  }
 
   const handleEdit = () => navigate(`/note/edit/${id}`)
-
-  const handleDelete = async () => {
-    try {
-      const userId = auth.currentUser?.uid
-      if (!userId || !id) {
-        console.error('User not authenticated or note ID is missing')
-        return
-      }
-      const noteRef = doc(db, 'users', userId, 'notes', id)
-      await deleteDoc(noteRef)
-      console.log('Note deleted successfully')
-      closeModal()
-      navigate('/note', { replace: true })
-    } catch (error) {
-      console.error('Error deleting note:', error)
-    }
-  }
-
-  const handleBookmarkToggle = async () => {
-    if (!note || !id) return
-
-    try {
-      const userId = auth.currentUser?.uid
-      if (!userId) {
-        console.error('User not authenticated')
-        return
-      }
-
-      const noteRef = doc(db, 'users', userId, 'notes', id)
-      const newBookmarkStatus = !note.isBookmarked
-
-      await updateDoc(noteRef, { isBookmarked: newBookmarkStatus })
-
-      setNote((prevNote) => ({
-        ...prevNote!,
-        isBookmarked: newBookmarkStatus,
-      }))
-    } catch (error) {
-      console.error('Error toggling bookmark: ', error)
-    }
-  }
 
   const kebabOptions = [
     { label: '수정', onClick: handleEdit },
@@ -95,11 +40,11 @@ export const NoteDetail = () => {
   ]
 
   if (loading) {
-    return <div>Loading...</div>
+    return <Loading />
   }
 
-  if (!note) {
-    return <div>Note not found</div>
+  if (error || !note) {
+    return <ErrorMessage>{error?.message || '노트가 존재하지 않습니다.'}</ErrorMessage>
   }
 
   return (
@@ -130,7 +75,7 @@ export const NoteDetail = () => {
         </section>
       </main>
 
-      <BottomBookmark isActive={note.isBookmarked} onToggleBookmark={handleBookmarkToggle} />
+      <BottomBookmark isActive={note.isBookmarked} onToggleBookmark={onBookmarkToggle} />
 
       {isModalOpen && (
         <ModalDelete
