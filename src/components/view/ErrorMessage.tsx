@@ -23,5 +23,5 @@ export const ErrorMessage = ({ children }: PropsWithChildren) => {
 }
 
 export const EmptyMessage = ({ children }: PropsWithChildren) => {
-  return <p className="p-medium flex-center size-full text-grey-6">{children}</p>
+  return <p className="p-medium flex-center size-full p-5 text-grey-6">{children}</p>
 }

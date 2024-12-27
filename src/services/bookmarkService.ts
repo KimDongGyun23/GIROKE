@@ -1,35 +1,45 @@
+import type { DocumentData, Query } from 'firebase/firestore'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 
 import { db } from '@/firebase/firebase'
 import type { NoteItemType, NoteTagType } from '@/types/note'
 import type { TermItemType, TermTagsType } from '@/types/term'
 
-export const fetchBookmarkedTerms = async (userId: string, activeTag: TermTagsType) => {
-  const termsRef = collection(db, 'users', userId, 'terms')
-  let termsQuery = query(termsRef, where('isBookmarked', '==', true))
+type BookmarkType = 'terms' | 'notes'
+type TagType = TermTagsType | NoteTagType
+type ItemType = TermItemType | NoteItemType
+
+const createBookmarkQuery = (
+  userId: string,
+  type: BookmarkType,
+  activeTag: TagType,
+): Query<DocumentData> => {
+  const collectionRef = collection(db, 'users', userId, type)
+  let baseQuery = query(collectionRef, where('isBookmarked', '==', true))
 
   if (activeTag !== '전체') {
-    termsQuery = query(termsQuery, where('tag', '==', activeTag))
+    baseQuery = query(baseQuery, where('tag', '==', activeTag))
   }
 
-  const querySnapshot = await getDocs(termsQuery)
+  return baseQuery
+}
+
+const fetchBookmarkedItems = async <T extends ItemType>(
+  userId: string,
+  type: BookmarkType,
+  activeTag: TagType,
+): Promise<T[]> => {
+  const bookmarkQuery = createBookmarkQuery(userId, type, activeTag)
+  const querySnapshot = await getDocs(bookmarkQuery)
+
   return querySnapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
-  })) as TermItemType[]
+  })) as T[]
 }
 
-export const fetchBookmarkedNotes = async (userId: string, activeTag: NoteTagType) => {
-  const notesRef = collection(db, 'users', userId, 'notes')
-  let notesQuery = query(notesRef, where('isBookmarked', '==', true))
+export const fetchBookmarkedTerms = (userId: string, activeTag: TermTagsType) =>
+  fetchBookmarkedItems<TermItemType>(userId, 'terms', activeTag)
 
-  if (activeTag !== '전체') {
-    notesQuery = query(notesQuery, where('tag', '==', activeTag))
-  }
-
-  const querySnapshot = await getDocs(notesQuery)
-  return querySnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as NoteItemType[]
-}
+export const fetchBookmarkedNotes = (userId: string, activeTag: NoteTagType) =>
+  fetchBookmarkedItems<NoteItemType>(userId, 'notes', activeTag)
