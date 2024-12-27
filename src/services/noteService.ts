@@ -88,3 +88,20 @@ export const updateNoteData = async (userId: string, noteId: string, formData: N
   const noteRef = doc(db, 'users', userId, 'notes', noteId)
   await updateDoc(noteRef, formData)
 }
+
+export const searchNotes = async (userId: string, activeTag: NoteTagType, searchName: string) => {
+  const userNotesRef = collection(db, 'users', userId, 'notes')
+  let notesQuery = userNotesRef
+
+  if (activeTag !== '전체') {
+    notesQuery = query(userNotesRef, where('tag', '==', activeTag)) as CollectionReference<
+      DocumentData,
+      DocumentData
+    >
+  }
+
+  const querySnapshot = await getDocs(notesQuery)
+  return querySnapshot.docs
+    .map((doc) => ({ id: doc.id, ...doc.data() }) as NoteItemType)
+    .filter((note) => note.title.toLowerCase().includes(searchName.toLowerCase()))
+}

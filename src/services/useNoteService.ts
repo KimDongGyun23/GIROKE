@@ -8,6 +8,7 @@ import {
   fetchNoteData,
   fetchNoteDetail,
   fetchNotes,
+  searchNotes,
   toggleNoteBookmark,
   updateNoteData,
 } from '@/services/noteService'
@@ -168,7 +169,7 @@ export const useNoteEdit = (noteId: string | undefined) => {
 
   const updateNote = async (formData: NoteFormType) => {
     if (!userId || !noteId) {
-      setError(new Error('User not authenticated or note ID is missing'))
+      setError(new Error('사용자가 인증되지 않았거나 NoteID가 없습니다.'))
       return false
     }
 
@@ -176,10 +177,39 @@ export const useNoteEdit = (noteId: string | undefined) => {
       await updateNoteData(userId, noteId, formData)
       return true
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Error updating note'))
+      setError(err instanceof Error ? err : new Error('업데이트 중에 오류가 발생했습니다.'))
       return false
     }
   }
 
   return { updateNote, error }
+}
+
+export const useNoteSearch = (activeTag: NoteTagType, searchName: string) => {
+  const { userId, loading: authLoading } = useAuthState(auth)
+  const [notes, setNotes] = useState<NoteItemType[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+
+  useEffect(() => {
+    const fetchNotes = async () => {
+      if (authLoading || !userId) return
+
+      setLoading(true)
+      try {
+        const fetchedNotes = await searchNotes(userId, activeTag, searchName)
+        setNotes(fetchedNotes)
+      } catch (err) {
+        setError(
+          err instanceof Error ? err : new Error('데이터를 불러오는 중에 오류가 발생했습니다.'),
+        )
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchNotes()
+  }, [authLoading, userId, activeTag, searchName])
+
+  return { notes, loading: loading || authLoading, error }
 }

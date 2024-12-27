@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import type { CollectionReference, DocumentData } from 'firebase/firestore'
-import { collection, getDocs, query, where } from 'firebase/firestore'
 
 import { NoteItem } from '@/components/domain/NoteItem'
+import { EmptyMessage, ErrorMessage } from '@/components/view/ErrorMessage'
 import { BackArrowIcon } from '@/components/view/icons/NonActiveIcon'
+import { Loading } from '@/components/view/Loading'
 import { Search } from '@/components/view/Search'
 import { Tag } from '@/components/view/Tag'
-import { auth, db } from '@/firebase/firebase'
-import type { NoteItemType, NoteTagType } from '@/types/note'
+import { useNoteSearch } from '@/services/useNoteService'
+import type { NoteTagType } from '@/types/note'
 import { NOTE_TAGS } from '@/utils/constants'
 
 export const NoteSearch = () => {
@@ -16,48 +16,14 @@ export const NoteSearch = () => {
   const [searchParams] = useSearchParams()
   const searchName = searchParams.get('searchName') || ''
   const [activeTag, setActiveTag] = useState<NoteTagType>(NOTE_TAGS[0])
-  const [notes, setNotes] = useState<NoteItemType[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchNotes = async () => {
-      setLoading(true)
-      try {
-        const userId = auth.currentUser?.uid
-        if (!userId) {
-          console.error('User not authenticated')
-          setLoading(false)
-          return
-        }
-
-        const userNotesRef = collection(db, 'users', userId, 'notes')
-        let notesQuery = userNotesRef
-
-        if (activeTag !== '전체') {
-          notesQuery = query(userNotesRef, where('tag', '==', activeTag)) as CollectionReference<
-            DocumentData,
-            DocumentData
-          >
-        }
-
-        const querySnapshot = await getDocs(notesQuery)
-        const fetchedNotes = querySnapshot.docs
-          .map((doc) => ({ id: doc.id, ...doc.data() }) as NoteItemType)
-          .filter((note) => note.title.toLowerCase().includes(searchName.toLowerCase()))
-
-        setNotes(fetchedNotes)
-      } catch (error) {
-        console.error('Error fetching notes:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchNotes()
-  }, [activeTag, searchName])
+  const { notes, loading, error } = useNoteSearch(activeTag, searchName)
 
   const handleBackClick = () => navigate('/note')
   const handleTagClick = (tag: NoteTagType) => setActiveTag(tag)
+
+  if (error) {
+    return <ErrorMessage>{error.message || '예상치 못한 오류가 발생했습니다.'}</ErrorMessage>
+  }
 
   return (
     <main className="flex-column mx-4 h-full pt-5">
@@ -80,11 +46,11 @@ export const NoteSearch = () => {
 
       <section className="flex-column scroll grow">
         {loading ? (
-          <p>Loading...</p>
+          <Loading />
         ) : notes.length > 0 ? (
           notes.map((note) => <NoteItem key={note.id} note={note} />)
         ) : (
-          <p>No notes found.</p>
+          <EmptyMessage>해당하는 프로젝트가 존재하지 않습니다.</EmptyMessage>
         )}
       </section>
     </main>
