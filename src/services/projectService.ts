@@ -1,103 +1,36 @@
-import type { CollectionReference, DocumentData } from 'firebase/firestore'
-import {
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  setDoc,
-  updateDoc,
-  where,
-} from 'firebase/firestore'
-import { v4 as uuidv4 } from 'uuid'
-
-import { db } from '@/firebase/firebase'
+import * as firebaseUtils from '@/firebase/firebaseUtils'
 import type {
   ProjectDetailType,
   ProjectFormType,
   ProjectItemType,
   ProjectTagType,
 } from '@/types/project'
-import { ERROR_MESSAGE, PROJECT_TAGS } from '@/utils/constants'
-import { formatDate } from '@/utils/formatDate'
 
-export const fetchProjects = async (userId: string, activeTag: ProjectTagType) => {
-  const userProjectsRef = collection(db, 'users', userId, 'projects')
-  let projectsQuery = userProjectsRef
+const COLLECTION_NAME = 'projects'
 
-  if (activeTag !== '전체') {
-    projectsQuery = query(
-      userProjectsRef,
-      where('satisfaction', '==', PROJECT_TAGS.indexOf(activeTag)),
-    ) as CollectionReference<DocumentData, DocumentData>
-  }
+export const fetchProjects = (userId: string, activeTag: ProjectTagType) =>
+  firebaseUtils.fetchItems<ProjectItemType>(userId, COLLECTION_NAME, activeTag, 'satisfaction')
 
-  const querySnapshot = await getDocs(projectsQuery)
-  return querySnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as ProjectItemType[]
-}
+export const createProject = (userId: string, formData: ProjectFormType) =>
+  firebaseUtils.createItem(userId, COLLECTION_NAME, formData)
 
-export const createProject = async (userId: string, formData: ProjectFormType) => {
-  const newProjectId = uuidv4()
-  const userProjectsRef = collection(db, 'users', userId, 'projects')
-  const newProjectDocRef = doc(userProjectsRef, newProjectId)
+export const fetchProjectData = (userId: string, projectId: string) =>
+  firebaseUtils.fetchItemDetail<ProjectDetailType>(userId, COLLECTION_NAME, projectId)
 
-  await setDoc(newProjectDocRef, {
-    id: newProjectId,
-    ...formData,
-    createdAt: formatDate(new Date(), 'dotted'),
-  })
+export const deleteProject = (userId: string, projectId: string) =>
+  firebaseUtils.deleteItem(userId, COLLECTION_NAME, projectId)
 
-  return newProjectId
-}
-
-export const fetchProjectData = async (userId: string, projectId: string) => {
-  const projectDocRef = doc(db, 'users', userId, 'projects', projectId)
-  const projectDoc = await getDoc(projectDocRef)
-
-  if (projectDoc.exists()) {
-    return { id: projectDoc.id, ...projectDoc.data() } as ProjectDetailType
-  } else {
-    throw new Error(ERROR_MESSAGE.noData)
-  }
-}
-
-export const deleteProject = async (userId: string, projectId: string) => {
-  const projectDocRef = doc(db, 'users', userId, 'projects', projectId)
-  await deleteDoc(projectDocRef)
-}
-
-export const updateProjectData = async (
+export const updateProjectData = (
   userId: string,
   projectId: string,
   formData: Partial<ProjectDetailType>,
-) => {
-  const projectDocRef = doc(db, 'users', userId, 'projects', projectId)
-  await updateDoc(projectDocRef, formData)
-}
+) => firebaseUtils.updateItemData(userId, COLLECTION_NAME, projectId, formData)
 
-export const searchProjects = async (
-  userId: string,
-  activeTag: ProjectTagType,
-  searchName: string,
-) => {
-  const userProjectsRef = collection(db, 'users', userId, 'projects')
-  let projectsQuery = userProjectsRef
-
-  if (activeTag !== '전체') {
-    projectsQuery = query(userProjectsRef, where('tag', '==', activeTag)) as CollectionReference<
-      DocumentData,
-      DocumentData
-    >
-  }
-
-  const querySnapshot = await getDocs(projectsQuery)
-  const fetchedProjects = querySnapshot.docs
-    .map((doc) => ({ id: doc.id, ...doc.data() }) as ProjectItemType)
-    .filter((project) => project.title.toLowerCase().includes(searchName.toLowerCase()))
-
-  return fetchedProjects
-}
+export const searchProjects = (userId: string, activeTag: ProjectTagType, searchName: string) =>
+  firebaseUtils.searchItems<ProjectItemType>(
+    userId,
+    COLLECTION_NAME,
+    activeTag,
+    searchName,
+    'satisfaction',
+  )

@@ -42,10 +42,10 @@ export const fetchItems = async <T>(
   })) as T[]
 }
 
-export const createItem = async <T extends { id?: string }>(
+export const createItem = async <T>(
   userId: string,
   collectionName: string,
-  data: T,
+  data: T & { id?: string },
 ) => {
   const newItemId = uuidv4()
   const collectionRef = getCollectionRef(userId, collectionName)
@@ -100,7 +100,7 @@ export const updateItemData = async <T>(
   await updateDoc(itemRef, formData)
 }
 
-export const searchItems = async <T extends { title: string }>(
+export const searchItems = async <T extends { term: string } | { title: string }>(
   userId: string,
   collectionName: string,
   activeTag: string,
@@ -108,5 +108,9 @@ export const searchItems = async <T extends { title: string }>(
   tagField: string = 'tag',
 ) => {
   const items = await fetchItems<T>(userId, collectionName, activeTag, tagField)
-  return items.filter((item) => item.title.toLowerCase().includes(searchName.toLowerCase()))
+  return items.filter((item) =>
+    'term' in item
+      ? item.term.toLowerCase().includes(searchName.toLowerCase())
+      : item.title.toLowerCase().includes(searchName.toLowerCase()),
+  )
 }
