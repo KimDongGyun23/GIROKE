@@ -1,9 +1,23 @@
 import type { CollectionReference, DocumentData } from 'firebase/firestore'
-import { collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore'
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  setDoc,
+  where,
+} from 'firebase/firestore'
 import { v4 as uuidv4 } from 'uuid'
 
 import { db } from '@/firebase/firebase'
-import type { ProjectFormType, ProjectItemType, ProjectTagType } from '@/types/project'
+import type {
+  ProjectDetailType,
+  ProjectFormType,
+  ProjectItemType,
+  ProjectTagType,
+} from '@/types/project'
 import { PROJECT_TAGS } from '@/utils/constants'
 import { formatDate } from '@/utils/formatDate'
 
@@ -37,4 +51,20 @@ export const createProject = async (userId: string, formData: ProjectFormType) =
   })
 
   return newProjectId
+}
+
+export const fetchProjectDetail = async (userId: string, projectId: string) => {
+  const projectDocRef = doc(db, 'users', userId, 'projects', projectId)
+  const projectDoc = await getDoc(projectDocRef)
+
+  if (projectDoc.exists()) {
+    return { id: projectDoc.id, ...projectDoc.data() } as ProjectDetailType
+  } else {
+    throw new Error('프로젝트가 존재하지 않습니다.')
+  }
+}
+
+export const deleteProject = async (userId: string, projectId: string) => {
+  const projectDocRef = doc(db, 'users', userId, 'projects', projectId)
+  await deleteDoc(projectDocRef)
 }

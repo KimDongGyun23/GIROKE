@@ -1,16 +1,15 @@
-import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { deleteDoc, doc, getDoc } from 'firebase/firestore'
 
+import { ErrorMessage } from '@/components/view/ErrorMessage'
 import { ThumbIcon } from '@/components/view/icons/ActiveIcon'
 import { InputGroup } from '@/components/view/inputGroup'
 import { Kebab } from '@/components/view/Kebab'
+import { Loading } from '@/components/view/Loading'
 import { ModalDelete } from '@/components/view/modal/Modal'
 import { SubHeaderWithIcon } from '@/components/view/SubHeader'
-import { auth, db } from '@/firebase/firebase'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useToggle } from '@/hooks/useToggle'
-import type { ProjectDetailType } from '@/types/project'
+import { useProjectDelete, useProjectDetail } from '@/services/useProjectService'
 import { formatDate } from '@/utils/formatDate'
 
 export const ProjectDetail = () => {
@@ -18,54 +17,20 @@ export const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>()
   const [isKebabOpen, toggleKebabState] = useToggle(false)
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
-  const [project, setProject] = useState<ProjectDetailType | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchProjectDetail = async () => {
-      if (!id) return
-      try {
-        const userId = auth.currentUser?.uid
-        if (!userId) {
-          console.error('User not authenticated')
-          return
-        }
-        const projectDocRef = doc(db, 'users', userId, 'projects', id)
-        const projectDoc = await getDoc(projectDocRef)
-
-        if (projectDoc.exists()) {
-          setProject({ id: projectDoc.id, ...projectDoc.data() } as ProjectDetailType)
-        } else {
-          console.error('Project not found')
-        }
-      } catch (error) {
-        console.error('Error fetching project details:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchProjectDetail()
-  }, [id])
+  const { project, loading, error } = useProjectDetail(id)
+  const { handleDelete: onDelete, error: deleteError } = useProjectDelete()
 
   const handleEdit = () => {
     if (id) navigate(`/project/edit/${id}`)
   }
 
   const handleDelete = async () => {
-    if (!id) return
-    try {
-      const userId = auth.currentUser?.uid
-      if (!userId) {
-        console.error('User not authenticated')
-        return
+    if (id) {
+      const success = await onDelete(id)
+      if (success) {
+        closeModal()
+        navigate('/project', { replace: true })
       }
-      const projectDocRef = doc(db, 'users', userId, 'projects', id)
-      await deleteDoc(projectDocRef)
-      console.log('Project deleted successfully')
-      closeModal()
-      navigate('/project', { replace: true })
-    } catch (error) {
-      console.error('Error deleting project:', error)
     }
   }
 
@@ -75,11 +40,11 @@ export const ProjectDetail = () => {
   ]
 
   if (loading) {
-    return <div>Loading...</div>
+    return <Loading />
   }
 
-  if (!project) {
-    return <div>Project not found</div>
+  if (error || deleteError || !project) {
+    return <ErrorMessage>{error?.message || '해당 프로젝트가 존재하지 않습니다.'}</ErrorMessage>
   }
 
   const projectDetails = [
