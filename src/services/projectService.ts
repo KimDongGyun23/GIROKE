@@ -1,4 +1,4 @@
-import * as firebaseUtils from '@/firebase/firebaseUtils'
+import * as firebaseUtils from '@/services/firebaseUtils'
 import type {
   ProjectDetailType,
   ProjectFormType,
@@ -6,31 +6,52 @@ import type {
   ProjectTagType,
 } from '@/types/project'
 
+import {
+  useItemCreate,
+  useItemDelete,
+  useItemDetail,
+  useItemSearch,
+  useItemsFetch,
+  useItemUpdate,
+} from './firebaseHooks'
+
 const COLLECTION_NAME = 'projects'
 
-export const fetchProjects = (userId: string, activeTag: ProjectTagType) =>
-  firebaseUtils.fetchItems<ProjectItemType>(userId, COLLECTION_NAME, activeTag, 'satisfaction')
+export const useProjects = (activeTag: ProjectTagType) =>
+  useItemsFetch<ProjectItemType, ProjectTagType>(
+    (userId: string, tag: ProjectTagType) =>
+      firebaseUtils.fetchItems<ProjectItemType>(userId, COLLECTION_NAME, tag),
+    activeTag,
+  )
 
-export const createProject = (userId: string, formData: ProjectFormType) =>
-  firebaseUtils.createItem(userId, COLLECTION_NAME, formData)
+export const useProjectCreate = () =>
+  useItemCreate<ProjectFormType, ProjectTagType>(
+    (userId: string, data: ProjectFormType, selectedTag: ProjectTagType) =>
+      firebaseUtils.createItem(userId, COLLECTION_NAME, { ...data, tag: selectedTag }),
+  )
 
-export const fetchProjectData = (userId: string, projectId: string) =>
-  firebaseUtils.fetchItemDetail<ProjectDetailType>(userId, COLLECTION_NAME, projectId)
+export const useProjectDetail = (projectId: string | undefined) =>
+  useItemDetail<ProjectDetailType>(
+    (userId: string, id: string) =>
+      firebaseUtils.fetchItemDetail<ProjectDetailType>(userId, COLLECTION_NAME, id),
+    projectId,
+  )
 
-export const deleteProject = (userId: string, projectId: string) =>
-  firebaseUtils.deleteItem(userId, COLLECTION_NAME, projectId)
+export const useProjectDelete = () =>
+  useItemDelete((userId: string, id: string) =>
+    firebaseUtils.deleteItem(userId, COLLECTION_NAME, id),
+  )
 
-export const updateProjectData = (
-  userId: string,
-  projectId: string,
-  formData: Partial<ProjectDetailType>,
-) => firebaseUtils.updateItemData(userId, COLLECTION_NAME, projectId, formData)
+export const useProjectUpdate = () =>
+  useItemUpdate<Partial<ProjectDetailType>>(
+    (userId: string, id: string, formData: Partial<ProjectDetailType>) =>
+      firebaseUtils.updateItemData(userId, COLLECTION_NAME, id, formData),
+  )
 
-export const searchProjects = (userId: string, activeTag: ProjectTagType, searchName: string) =>
-  firebaseUtils.searchItems<ProjectItemType>(
-    userId,
-    COLLECTION_NAME,
+export const useProjectSearch = (activeTag: ProjectTagType, searchName: string) =>
+  useItemSearch<ProjectItemType, ProjectTagType>(
+    (userId: string, tag: ProjectTagType, name: string) =>
+      firebaseUtils.searchItems<ProjectItemType>(userId, COLLECTION_NAME, tag, name),
     activeTag,
     searchName,
-    'satisfaction',
   )
