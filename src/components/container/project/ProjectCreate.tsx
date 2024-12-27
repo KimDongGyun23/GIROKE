@@ -1,16 +1,15 @@
 import { useState } from 'react'
 import { FormProvider } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import { collection, doc, setDoc } from 'firebase/firestore'
-import { v4 as uuidv4 } from 'uuid'
 
+import { ErrorMessage } from '@/components/view/ErrorMessage'
 import { ThumbIcon } from '@/components/view/icons/ActiveIcon'
 import { InputGroup } from '@/components/view/inputGroup'
 import { ModalCreate } from '@/components/view/modal/Modal'
 import { SubHeaderWithoutIcon } from '@/components/view/SubHeader'
-import { auth, db } from '@/firebase/firebase'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useProjectForm } from '@/hooks/useForms'
+import { useProjectCreate } from '@/services/useProjectService'
 import { formatDate } from '@/utils/formatDate'
 
 const inputFields = [
@@ -43,31 +42,13 @@ export const ProjectCreate = () => {
 
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
   const [satisfaction, setSatisfaction] = useState<number>(0)
-  const [newProjectId, setNewProjectId] = useState<string | null>(null)
+  const { handleCreateProject, newProjectId, error } = useProjectCreate()
 
   const handleFormSubmit = async () => {
-    try {
-      const userId = auth.currentUser?.uid
-      if (!userId) {
-        console.error('User not authenticated')
-        return
-      }
-
-      const formData = getValues()
-      const newProjectId = uuidv4()
-      const userProjectsRef = collection(db, 'users', userId, 'projects')
-      const newProjectDocRef = doc(userProjectsRef, newProjectId)
-
-      await setDoc(newProjectDocRef, {
-        id: newProjectId,
-        ...formData,
-        createdAt: formatDate(new Date(), 'dotted'),
-      })
-
-      setNewProjectId(newProjectId)
+    const formData = getValues()
+    const createdProjectId = await handleCreateProject(formData)
+    if (createdProjectId) {
       openModal()
-    } catch (error) {
-      console.error('Error creating project: ', error)
     }
   }
 
@@ -81,6 +62,10 @@ export const ProjectCreate = () => {
   const handleSatisfactionChange = (value: number) => {
     setSatisfaction(value)
     setValue('satisfaction', value)
+  }
+
+  if (error) {
+    return <ErrorMessage>예상치 못한 오류가 발생했습니다.</ErrorMessage>
   }
 
   return (

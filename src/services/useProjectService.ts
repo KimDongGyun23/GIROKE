@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 
-import { fetchProjects } from '@/services/projectService'
-import type { ProjectItemType, ProjectTagType } from '@/types/project'
+import { auth } from '@/firebase/firebase'
+import { useAuthState } from '@/hooks/useAuthState'
+import { createProject, fetchProjects } from '@/services/projectService'
+import type { ProjectFormType, ProjectItemType, ProjectTagType } from '@/types/project'
 
 export const useProjects = (userId: string | null, activeTag: ProjectTagType) => {
   const [projects, setProjects] = useState<ProjectItemType[]>([])
@@ -27,4 +29,30 @@ export const useProjects = (userId: string | null, activeTag: ProjectTagType) =>
   }, [userId, activeTag])
 
   return { projects, loading, error }
+}
+
+export const useProjectCreate = () => {
+  const { userId, loading: authLoading } = useAuthState(auth)
+  const [newProjectId, setNewProjectId] = useState<string | null>(null)
+  const [error, setError] = useState<Error | null>(null)
+
+  const handleCreateProject = async (formData: ProjectFormType) => {
+    if (authLoading || !userId) {
+      setError(new Error('사용자가 인증되지 않았습니다'))
+      return null
+    }
+
+    try {
+      const createdProjectId = await createProject(userId, formData)
+      setNewProjectId(createdProjectId)
+      return createdProjectId
+    } catch (err) {
+      setError(
+        err instanceof Error ? err : new Error('프로젝트 생성 과정에서 오류가 발생했습니다.'),
+      )
+      return null
+    }
+  }
+
+  return { handleCreateProject, newProjectId, error }
 }
