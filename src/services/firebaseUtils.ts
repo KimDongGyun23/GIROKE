@@ -36,6 +36,7 @@ export const fetchItems = async <T>(
   }
 
   const querySnapshot = await getDocs(itemsQuery)
+
   return querySnapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),

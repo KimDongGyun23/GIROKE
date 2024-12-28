@@ -10,7 +10,7 @@ import { SubHeaderWithIcon } from '@/components/view/SubHeader'
 import { Tag } from '@/components/view/Tag'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useToggle } from '@/hooks/useToggle'
-import { useNoteBookmark, useNoteData, useNoteDelete } from '@/services/useNoteService'
+import { useNoteBookmark, useNoteData, useNoteDelete } from '@/services/noteService'
 
 export const NoteDetail = () => {
   const navigate = useNavigate()
@@ -18,8 +18,8 @@ export const NoteDetail = () => {
   const [isKebabOpen, toggleKebabState] = useToggle(false)
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
 
-  const { note, setNote, loading, error: fetchError } = useNoteData(id)
-  const { handleDelete, error: deleteError } = useNoteDelete(id)
+  const { item: note, setItem, loading, error: fetchError } = useNoteData(id)
+  const { handleDelete, error: deleteError } = useNoteDelete()
   const { handleBookmarkToggle, error: bookmarkError } = useNoteBookmark(id)
 
   const error = fetchError || deleteError || bookmarkError
@@ -28,24 +28,27 @@ export const NoteDetail = () => {
     if (!note) return
     const newStatus = await handleBookmarkToggle(note.isBookmarked)
     if (newStatus !== undefined) {
-      setNote((prevNote) => ({ ...prevNote!, isBookmarked: newStatus }))
+      setItem((prevNote) => ({ ...prevNote!, isBookmarked: newStatus }))
     }
   }
 
   const handleEdit = () => navigate(`/note/edit/${id}`)
+
+  const onDelete = () => {
+    if (id) {
+      handleDelete(id!)
+      closeModal()
+      navigate('/note', { replace: true })
+    }
+  }
 
   const kebabOptions = [
     { label: '수정', onClick: handleEdit },
     { label: '삭제', onClick: openModal },
   ]
 
-  if (loading) {
-    return <Loading />
-  }
-
-  if (error || !note) {
-    return <ErrorMessage>{error?.message}</ErrorMessage>
-  }
+  if (loading) return <Loading />
+  if (error || !note) return <ErrorMessage>{error?.message}</ErrorMessage>
 
   return (
     <>
@@ -82,7 +85,7 @@ export const NoteDetail = () => {
           isOpen={isModalOpen}
           closeModal={closeModal}
           leftButtonOnClick={closeModal}
-          rightButtonOnClick={handleDelete}
+          rightButtonOnClick={onDelete}
         />
       )}
     </>

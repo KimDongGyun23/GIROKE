@@ -21,9 +21,8 @@ export const useNotes = (activeTag: NoteTagType) =>
   )
 
 export const useNoteCreate = () =>
-  useItemCreate<NoteFormType, NoteTagType>(
-    (userId: string, data: NoteFormType, selectedTag: NoteTagType) =>
-      firebaseUtils.createItem(userId, COLLECTION_NAME, { ...data, tag: selectedTag }),
+  useItemCreate<NoteFormType>((userId: string, data: NoteFormType) =>
+    firebaseUtils.createItem(userId, COLLECTION_NAME, data),
   )
 
 export const useNoteData = (noteId: string | undefined) =>

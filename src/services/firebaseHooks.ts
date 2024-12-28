@@ -1,4 +1,3 @@
-// useCommonHooks.ts
 import { useEffect, useState } from 'react'
 
 import { auth } from '@/firebase/firebase'
@@ -30,26 +29,24 @@ export const useItemsFetch = <T, U>(
     }
 
     loadItems()
-  }, [authLoading, userId, activeTag, fetchFunction])
+  }, [authLoading, userId, activeTag])
 
   return { items, loading: loading || authLoading, error }
 }
 
-export const useItemCreate = <T, U>(
-  createFunction: (userId: string, data: T, tag: U) => Promise<string>,
-) => {
+export const useItemCreate = <T>(createFunction: (userId: string, data: T) => Promise<string>) => {
   const { userId } = useAuthState(auth)
   const [newItemId, setNewItemId] = useState<string | null>(null)
   const [error, setError] = useState<Error | null>(null)
 
-  const handleCreate = async (data: T, tag: U) => {
+  const handleCreate = async (data: T) => {
     if (!userId) {
       setError(new Error(ERROR_MESSAGE.auth))
       return null
     }
 
     try {
-      const createdItemId = await createFunction(userId, data, tag)
+      const createdItemId = await createFunction(userId, data)
       setNewItemId(createdItemId)
       return createdItemId
     } catch (err) {
@@ -85,7 +82,7 @@ export const useItemDetail = <T>(
     }
 
     loadItemDetail()
-  }, [authLoading, userId, itemId, fetchFunction])
+  }, [authLoading, userId, itemId])
 
   return { item, setItem, loading: loading || authLoading, error }
 }

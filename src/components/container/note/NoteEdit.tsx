@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react'
-import React from 'react'
-import { FormProvider } from 'react-hook-form'
+import React, { useCallback, useEffect } from 'react'
+import { FormProvider, useFieldArray, useFormContext, useWatch } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { Button } from '@/components/view/Button'
@@ -9,42 +8,94 @@ import { InputGroup } from '@/components/view/inputGroup'
 import { Loading } from '@/components/view/Loading'
 import { ModalEdit } from '@/components/view/modal/Modal'
 import { SubHeaderWithoutIcon } from '@/components/view/SubHeader'
-import { Tag } from '@/components/view/Tag'
+import { TagList } from '@/components/view/TagList'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useNoteForm } from '@/hooks/useForms'
-import { useNoteEdit, useNoteEditData } from '@/services/useNoteService'
-import type { NoteTagType } from '@/types/note'
+import { useNoteData, useNoteEdit } from '@/services/noteService'
 import { NOTE_TAGS } from '@/utils/constants'
+
+const ParagraphFields = () => {
+  const { control } = useFormContext()
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'paragraphs',
+  })
+
+  const addParagraph = useCallback(() => append({ subTitle: '', content: '' }), [append])
+  const removeParagraph = useCallback(() => {
+    if (fields.length > 1) {
+      remove(fields.length - 1)
+    }
+  }, [remove, fields.length])
+
+  return (
+    <>
+      {fields.map((field, index) => (
+        <React.Fragment key={field.id}>
+          <InputGroup>
+            <InputGroup.Label section={`paragraphs.${index}.subTitle`}>단락 제목</InputGroup.Label>
+            <InputGroup.Input
+              section={`paragraphs.${index}.subTitle`}
+              placeholder="단락 제목을 입력해주세요."
+            />
+          </InputGroup>
+          <InputGroup.Label section={`paragraphs.${index}.content`}>단락 내용</InputGroup.Label>
+          <InputGroup.TextArea
+            section={`paragraphs.${index}.content`}
+            placeholder="단락 내용을 입력해주세요."
+          />
+        </React.Fragment>
+      ))}
+      <Button type="button" size="sm" onClick={addParagraph}>
+        단락 추가
+      </Button>
+      <Button type="button" size="sm" onClick={removeParagraph}>
+        마지막 단락 삭제
+      </Button>
+    </>
+  )
+}
+
+const TagField = () => {
+  const { setValue, control } = useFormContext()
+  const selectedTag = useWatch({ name: 'tag', control })
+
+  return (
+    <InputGroup>
+      <InputGroup.Label section="tag">태그 선택</InputGroup.Label>
+      <TagList
+        tags={NOTE_TAGS}
+        activeTag={selectedTag}
+        onTagClick={(tag) => setValue('tag', tag)}
+        isSliced
+        isWrapped
+      />
+    </InputGroup>
+  )
+}
 
 export const NoteEdit = () => {
   const navigate = useNavigate()
-  const { id } = useParams()
+  const { id } = useParams<{ id: string }>()
   const formMethod = useNoteForm()
   const { handleSubmit, setValue, getValues } = formMethod
 
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
-  const [paragraphs, setParagraphs] = useState<{ subTitle: string; content: string }[]>([])
-  const [selectedTag, setSelectedTag] = useState<NoteTagType>('전체')
 
-  const { noteData, loading, error: fetchError } = useNoteEditData(id)
-  const { updateNote, error: updateError } = useNoteEdit(id)
+  const { item: noteData, loading, error: fetchError } = useNoteData(id)
+  const { updateItem: updateNote, error: updateError } = useNoteEdit()
 
   useEffect(() => {
     if (noteData) {
       setValue('title', noteData.title)
       setValue('tag', noteData.tag)
       setValue('paragraphs', noteData.paragraphs)
-      setSelectedTag(noteData.tag)
-      setParagraphs(noteData.paragraphs)
     }
   }, [noteData, setValue])
 
   const handleFormSubmit = async () => {
     const formData = getValues()
-    const success = await updateNote(formData)
-    if (success) {
-      openModal()
-    }
+    await updateNote(id as string, formData).then(() => openModal())
   }
 
   const handleModalConfirm = () => {
@@ -52,26 +103,10 @@ export const NoteEdit = () => {
     navigate(`/note/detail/${id}`, { replace: true })
   }
 
-  const addParagraph = () => {
-    setParagraphs((prev) => [...prev, { subTitle: '', content: '' }])
-    setValue('paragraphs', [...paragraphs, { subTitle: '', content: '' }])
-  }
+  const error = fetchError || updateError
 
-  const removeParagraph = () => {
-    if (paragraphs.length > 1) {
-      const newParagraphs = paragraphs.slice(0, -1)
-      setParagraphs(newParagraphs)
-      setValue('paragraphs', newParagraphs)
-    }
-  }
-
-  if (loading) {
-    return <Loading />
-  }
-
-  if (fetchError || updateError) {
-    return <ErrorMessage>{(fetchError || updateError)?.message}</ErrorMessage>
-  }
+  if (loading) return <Loading />
+  if (error) return <ErrorMessage>{error.message}</ErrorMessage>
 
   return (
     <>
@@ -88,55 +123,8 @@ export const NoteEdit = () => {
               <InputGroup.Label section="title">노트 제목</InputGroup.Label>
               <InputGroup.Input section="title" placeholder="노트 제목을 입력해주세요." />
             </InputGroup>
-
-            <InputGroup>
-              <div className="flex-between items-end">
-                <InputGroup.Label section="tag">태그 선택</InputGroup.Label>
-                <p className="p-xsmall text-grey-6">* 최대 2개 선택 가능</p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {NOTE_TAGS.slice(1).map((tag: NoteTagType) => (
-                  <Tag
-                    key={tag}
-                    secondary={tag !== selectedTag}
-                    onClick={() => {
-                      setSelectedTag(tag)
-                      setValue('tag', tag)
-                    }}
-                  >
-                    {tag}
-                  </Tag>
-                ))}
-              </div>
-            </InputGroup>
-
-            {paragraphs.map((_, index) => (
-              <React.Fragment key={index}>
-                <InputGroup>
-                  <InputGroup.Label section={`paragraphs.${index}.subTitle`}>
-                    단락 제목
-                  </InputGroup.Label>
-                  <InputGroup.Input
-                    section={`paragraphs.${index}.subTitle`}
-                    placeholder="단락 제목을 입력해주세요."
-                  />
-                </InputGroup>
-                <InputGroup.Label section={`paragraphs.${index}.content`}>
-                  단락 내용
-                </InputGroup.Label>
-                <InputGroup.TextArea
-                  section={`paragraphs.${index}.content`}
-                  placeholder="단락 내용을 입력해주세요."
-                />
-              </React.Fragment>
-            ))}
-
-            <Button type="button" size="sm" onClick={addParagraph}>
-              단락 추가
-            </Button>
-            <Button type="button" size="sm" onClick={removeParagraph}>
-              마지막 단락 삭제
-            </Button>
+            <TagField />
+            <ParagraphFields />
           </form>
         </FormProvider>
       </main>
