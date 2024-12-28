@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { FormProvider } from 'react-hook-form'
+import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 
 import { ErrorMessage } from '@/components/view/ErrorMessage'
@@ -9,7 +8,7 @@ import { ModalCreate } from '@/components/view/modal/Modal'
 import { SubHeaderWithoutIcon } from '@/components/view/SubHeader'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useProjectForm } from '@/hooks/useForms'
-import { useProjectCreate } from '@/services/useProjectService'
+import { useProjectCreate } from '@/services/projectService'
 import { formatDate } from '@/utils/formatDate'
 
 const inputFields = [
@@ -35,21 +34,37 @@ const inputFields = [
   },
 ]
 
+const SatisfactionRating = () => {
+  const { setValue, control } = useFormContext()
+  const satisfaction = useWatch({ name: 'satisfaction', control })
+
+  return (
+    <InputGroup>
+      <div className="flex-between items-end">
+        <InputGroup.Label section="satisfaction">만족도</InputGroup.Label>
+        <div className="flex flex-wrap gap-2">
+          {[1, 2, 3].map((value) => (
+            <button key={value} type="button" onClick={() => setValue('satisfaction', value)}>
+              <ThumbIcon active={value <= satisfaction} />
+            </button>
+          ))}
+        </div>
+      </div>
+    </InputGroup>
+  )
+}
+
 export const ProjectCreate = () => {
   const navigate = useNavigate()
   const formMethod = useProjectForm()
-  const { handleSubmit, setValue, getValues } = formMethod
+  const { handleSubmit, getValues } = formMethod
 
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
-  const [satisfaction, setSatisfaction] = useState<number>(0)
-  const { handleCreateProject, newProjectId, error } = useProjectCreate()
+  const { handleCreate, newItemId: newProjectId, error } = useProjectCreate()
 
   const handleFormSubmit = async () => {
     const formData = getValues()
-    const createdProjectId = await handleCreateProject(formData)
-    if (createdProjectId) {
-      openModal()
-    }
+    await handleCreate(formData).then(() => openModal())
   }
 
   const handleModalConfirm = () => {
@@ -59,14 +74,7 @@ export const ProjectCreate = () => {
     }
   }
 
-  const handleSatisfactionChange = (value: number) => {
-    setSatisfaction(value)
-    setValue('satisfaction', value)
-  }
-
-  if (error) {
-    return <ErrorMessage>{error?.message}</ErrorMessage>
-  }
+  if (error) return <ErrorMessage>{error?.message}</ErrorMessage>
 
   return (
     <>
@@ -110,23 +118,7 @@ export const ProjectCreate = () => {
               </InputGroup>
             ))}
 
-            <InputGroup>
-              <div className="flex-between items-end">
-                <InputGroup.Label section="satisfaction">만족도</InputGroup.Label>
-
-                <div className="flex flex-wrap gap-2">
-                  {[1, 2, 3].map((value) => (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => handleSatisfactionChange(value)}
-                    >
-                      <ThumbIcon active={value <= satisfaction} />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </InputGroup>
+            <SatisfactionRating />
           </form>
         </FormProvider>
       </main>

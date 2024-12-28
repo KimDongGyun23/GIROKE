@@ -1,3 +1,4 @@
+import React, { useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { ErrorMessage } from '@/components/view/ErrorMessage'
@@ -9,28 +10,52 @@ import { ModalDelete } from '@/components/view/modal/Modal'
 import { SubHeaderWithIcon } from '@/components/view/SubHeader'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useToggle } from '@/hooks/useToggle'
-import { useProjectDelete, useProjectDetail } from '@/services/useProjectService'
+import { useProjectDelete, useProjectDetail } from '@/services/projectService'
+import type { ProjectDetailType } from '@/types/project'
 import { formatDate } from '@/utils/formatDate'
+
+const ProjectDetails = ({ project }: { project: ProjectDetailType }) => {
+  const projectDetails = [
+    { label: '한줄 설명', content: project.description },
+    { label: '공들인 부분', content: project.painstakingPart },
+    { label: '좋았던 부분', content: project.likingPart },
+    { label: '아쉬운 부분', content: project.disappointingPart },
+    { label: '사용한 기술들을 선택한 이유', content: project.reasonOfStack },
+  ]
+
+  return (
+    <section className="flex-column my-4 gap-[10px]">
+      {projectDetails.map(({ label, content }) => (
+        <InputGroup key={label}>
+          <InputGroup.LabelWithoutForm>{label}</InputGroup.LabelWithoutForm>
+          <InputGroup.InputBox>{content}</InputGroup.InputBox>
+        </InputGroup>
+      ))}
+    </section>
+  )
+}
 
 export const ProjectDetail = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const [isKebabOpen, toggleKebabState] = useToggle(false)
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
-  const { project, loading, error } = useProjectDetail(id)
+
+  const { item: project, loading, error: fetchError } = useProjectDetail(id)
   const { handleDelete: onDelete, error: deleteError } = useProjectDelete()
 
-  const handleEdit = () => {
+  const error = fetchError || deleteError
+
+  const handleEdit = useCallback(() => {
     if (id) navigate(`/project/edit/${id}`)
-  }
+  }, [navigate, id])
 
   const handleDelete = async () => {
     if (id) {
-      const success = await onDelete(id)
-      if (success) {
+      await onDelete(id).then(() => {
         closeModal()
         navigate('/project', { replace: true })
-      }
+      })
     }
   }
 
@@ -39,21 +64,8 @@ export const ProjectDetail = () => {
     { label: '삭제', onClick: openModal },
   ]
 
-  if (loading) {
-    return <Loading />
-  }
-
-  if (error || deleteError || !project) {
-    return <ErrorMessage>{error?.message}</ErrorMessage>
-  }
-
-  const projectDetails = [
-    { label: '한줄 설명', content: project.description },
-    { label: '공들인 부분', content: project.painstakingPart },
-    { label: '좋았던 부분', content: project.likingPart },
-    { label: '아쉬운 부분', content: project.disappointingPart },
-    { label: '사용한 기술들을 사용한 이유', content: project.reasonOfStack },
-  ]
+  if (loading) return <Loading />
+  if (error || !project) return <ErrorMessage>{error?.message}</ErrorMessage>
 
   return (
     <>
@@ -79,14 +91,7 @@ export const ProjectDetail = () => {
           </div>
         </div>
 
-        <section className="flex-column my-4 gap-[10px]">
-          {projectDetails.map(({ label, content }) => (
-            <InputGroup key={label}>
-              <InputGroup.LabelWithoutForm>{label}</InputGroup.LabelWithoutForm>
-              <InputGroup.InputBox>{content}</InputGroup.InputBox>
-            </InputGroup>
-          ))}
-        </section>
+        <ProjectDetails project={project} />
       </main>
 
       {isModalOpen && (

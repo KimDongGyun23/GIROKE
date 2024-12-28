@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { FormProvider } from 'react-hook-form'
+import React, { useCallback, useEffect } from 'react'
+import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { ErrorMessage } from '@/components/view/ErrorMessage'
@@ -10,13 +10,21 @@ import { ModalEdit } from '@/components/view/modal/Modal'
 import { SubHeaderWithoutIcon } from '@/components/view/SubHeader'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useProjectForm } from '@/hooks/useForms'
-import { useProjectData, useProjectUpdate } from '@/services/useProjectService'
+import { useProjectDetail, useProjectUpdate } from '@/services/projectService'
 import type { ProjectDetailType } from '@/types/project'
 import { formatDate } from '@/utils/formatDate'
 
 const inputFields = [
-  { section: 'painstakingPart', label: '공들인 부분', placeholder: '공들인 부분을 입력해주세요.' },
-  { section: 'likingPart', label: '좋았던 부분', placeholder: '좋았던 부분을 입력해주세요.' },
+  {
+    section: 'painstakingPart',
+    label: '공들인 부분',
+    placeholder: '공들인 부분을 입력해주세요.',
+  },
+  {
+    section: 'likingPart',
+    label: '좋았던 부분',
+    placeholder: '좋았던 부분을 입력해주세요.',
+  },
   {
     section: 'disappointingPart',
     label: '아쉬운 부분',
@@ -29,17 +37,36 @@ const inputFields = [
   },
 ]
 
+const SatisfactionRating = () => {
+  const { setValue, control } = useFormContext()
+  const satisfaction = useWatch({ name: 'satisfaction', control })
+
+  return (
+    <InputGroup>
+      <div className="flex-between items-end">
+        <InputGroup.Label section="satisfaction">만족도</InputGroup.Label>
+        <div className="flex flex-wrap gap-2">
+          {[1, 2, 3].map((value) => (
+            <button key={value} type="button" onClick={() => setValue('satisfaction', value)}>
+              <ThumbIcon active={value <= satisfaction} />
+            </button>
+          ))}
+        </div>
+      </div>
+    </InputGroup>
+  )
+}
+
 export const ProjectEdit = () => {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
   const formMethod = useProjectForm()
-
   const { handleSubmit, setValue, getValues } = formMethod
-  const { projectData, loading, error } = useProjectData(id)
-  const { updateProject, error: updateError } = useProjectUpdate()
 
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
-  const [satisfaction, setSatisfaction] = useState<number>(0)
+
+  const { item: projectData, loading, error: fetchError } = useProjectDetail(id)
+  const { updateItem: updateProject, error: updateError } = useProjectUpdate()
 
   useEffect(() => {
     if (projectData) {
@@ -48,36 +75,23 @@ export const ProjectEdit = () => {
           setValue(key as keyof Omit<ProjectDetailType, 'id'>, value)
         }
       })
-      setSatisfaction(projectData.satisfaction)
     }
   }, [projectData, setValue])
 
   const handleFormSubmit = async () => {
     if (!id) return
     const formData = getValues()
-    const success = await updateProject(id, formData)
-    if (success) {
-      openModal()
-    }
+    await updateProject(id, formData).then(() => openModal())
   }
 
-  const handleModalConfirm = () => {
+  const handleModalConfirm = useCallback(() => {
     closeModal()
     navigate(`/project/detail/${id}`, { replace: true })
-  }
+  }, [closeModal, navigate, id])
 
-  const handleSatisfactionChange = (value: number) => {
-    setSatisfaction(value)
-    setValue('satisfaction', value)
-  }
-
-  if (loading) {
-    return <Loading />
-  }
-
-  if (error || updateError) {
-    return <ErrorMessage>{(error || updateError)?.message}</ErrorMessage>
-  }
+  if (loading) return <Loading />
+  if (fetchError || updateError)
+    return <ErrorMessage>{(fetchError || updateError)?.message}</ErrorMessage>
 
   return (
     <>
@@ -121,22 +135,7 @@ export const ProjectEdit = () => {
               </InputGroup>
             ))}
 
-            <InputGroup>
-              <div className="flex-between items-end">
-                <InputGroup.Label section="tag">만족도</InputGroup.Label>
-                <div className="flex flex-wrap gap-2">
-                  {[1, 2, 3].map((value) => (
-                    <button
-                      key={value}
-                      onClick={() => handleSatisfactionChange(value)}
-                      type="button"
-                    >
-                      <ThumbIcon active={value <= satisfaction} />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </InputGroup>
+            <SatisfactionRating />
           </form>
         </FormProvider>
       </main>

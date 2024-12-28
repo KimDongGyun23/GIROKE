@@ -25,9 +25,8 @@ export const useProjects = (activeTag: ProjectTagType) =>
   )
 
 export const useProjectCreate = () =>
-  useItemCreate<ProjectFormType, ProjectTagType>(
-    (userId: string, data: ProjectFormType, selectedTag: ProjectTagType) =>
-      firebaseUtils.createItem(userId, COLLECTION_NAME, { ...data, tag: selectedTag }),
+  useItemCreate<ProjectFormType>((userId: string, data: ProjectFormType) =>
+    firebaseUtils.createItem(userId, COLLECTION_NAME, data),
   )
 
 export const useProjectDetail = (projectId: string | undefined) =>

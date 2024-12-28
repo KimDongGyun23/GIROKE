@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { ProjectItem } from '@/components/domain/ProjectItem'
@@ -6,21 +6,20 @@ import { EmptyMessage } from '@/components/view/ErrorMessage'
 import { BackArrowIcon } from '@/components/view/icons/NonActiveIcon'
 import { Loading } from '@/components/view/Loading'
 import { Search } from '@/components/view/Search'
-import { Tag } from '@/components/view/Tag'
-import { useProjectSearch } from '@/services/useProjectService'
+import { TagList } from '@/components/view/TagList'
+import { useProjectSearch } from '@/services/projectService'
 import type { ProjectTagType } from '@/types/project'
-import { PROJECT_TAGS } from '@/utils/constants'
+import { ERROR_MESSAGE, PROJECT_TAGS } from '@/utils/constants'
 
 export const ProjectSearch = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const searchName = searchParams.get('searchName') || ''
-
   const [activeTag, setActiveTag] = useState<ProjectTagType>(PROJECT_TAGS[0])
-  const { projects, loading, error } = useProjectSearch(activeTag, searchName)
+  const { items: projects, loading, error } = useProjectSearch(activeTag, searchName)
 
-  const handleBackClick = () => navigate('project')
-  const handleTagClick = (tag: ProjectTagType) => setActiveTag(tag)
+  const handleBackClick = useCallback(() => navigate('/project'), [navigate])
+  const handleTagClick = useCallback((tag: ProjectTagType) => setActiveTag(tag), [])
 
   return (
     <main className="flex-column mx-4 h-full pt-5">
@@ -33,19 +32,15 @@ export const ProjectSearch = () => {
         </div>
       </header>
 
-      <div className="scroll flex w-fit shrink-0 gap-2 overflow-x-scroll py-3">
-        {PROJECT_TAGS.map((tag: ProjectTagType) => (
-          <Tag key={tag} secondary={activeTag !== tag} onClick={() => handleTagClick(tag)}>
-            {tag}
-          </Tag>
-        ))}
-      </div>
+      <TagList tags={PROJECT_TAGS} activeTag={activeTag} onTagClick={handleTagClick} />
 
       <section className="flex-column scroll grow">
         {loading ? (
           <Loading />
         ) : error ? (
           <EmptyMessage>{error?.message}</EmptyMessage>
+        ) : projects.length === 0 ? (
+          <EmptyMessage>{ERROR_MESSAGE.noData}</EmptyMessage>
         ) : (
           projects.map((project) => <ProjectItem key={project.id} project={project} />)
         )}
