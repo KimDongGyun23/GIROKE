@@ -15,7 +15,7 @@ import { useTaskDetail, useTaskUpdate } from '@/services/useHomeService'
 import type { CalendarValue } from '@/types/common'
 
 export const HomeEdit = () => {
-  const { id } = useParams()
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const formMethod = useHomeForm()
 
@@ -24,8 +24,8 @@ export const HomeEdit = () => {
 
   const { setValue, handleSubmit, getValues } = formMethod
 
-  const { todo, loading, error: fetchError } = useTaskDetail(id)
-  const { handleUpdateTodo, error: updateError } = useTaskUpdate()
+  const { item: todo, loading, error: fetchError } = useTaskDetail(id as string)
+  const { updateItem, error: updateError } = useTaskUpdate()
 
   useEffect(() => {
     if (todo) {
@@ -38,7 +38,7 @@ export const HomeEdit = () => {
   const onSubmit = async () => {
     if (!id) return
     const formData = getValues()
-    const success = await handleUpdateTodo(id, formData)
+    const success = await updateItem(id, formData)
     if (success) {
       openModal()
     }

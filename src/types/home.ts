@@ -1,4 +1,4 @@
-export type HomeFormType = {
+export type TodoFormType = {
   todo: string
   date: Date
 }

@@ -1,44 +1,52 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
+import dayjs from 'dayjs'
 
 import { HomeCalender } from '@/components/domain/HomeCalendar'
 import { TodoItem } from '@/components/domain/TodoItem'
 import { EmptyMessage } from '@/components/view/ErrorMessage'
-import { Loading } from '@/components/view/Loading'
 import { useMonthlyTasks } from '@/services/useHomeService'
 import type { CalendarValue } from '@/types/common'
+import { ERROR_MESSAGE } from '@/utils/constants'
 import { formatDate } from '@/utils/formatDate'
 
 export const Home = () => {
+  const [selectedMonth, setSelectedMonth] = useState(dayjs().format('YYYY-MM'))
   const [selectedDate, setSelectedDate] = useState<CalendarValue>(new Date())
-  const {
-    selectedDateTasks,
-    scheduledDates,
-    loading,
-    error,
-    handleTaskUpdate,
-    updateSelectedDateTasks,
-  } = useMonthlyTasks(selectedDate)
+  const { scheduledDates, selectedDateTasks, loading, error } = useMonthlyTasks(
+    selectedMonth,
+    selectedDate as Date,
+  )
 
-  const isDateMarked = (date: Date) =>
-    scheduledDates.some((scheduleDate) => scheduleDate === formatDate(date, 'default'))
+  const isDateMarked = useCallback(
+    (date: Date) => scheduledDates.includes(formatDate(date, 'default')),
+    [scheduledDates],
+  )
 
-  const tileClassName = ({ date }: { date: Date }) => (isDateMarked(date) ? 'marked' : '')
+  const tileClassName = useCallback(
+    ({ date }: { date: Date }) => (isDateMarked(date) ? 'marked' : ''),
+    [isDateMarked],
+  )
 
-  if (loading) {
-    return <Loading />
+  const handleActiveStartDateChange = ({ activeStartDate }: { activeStartDate: Date | null }) => {
+    if (activeStartDate) {
+      const newMonth = dayjs(activeStartDate).format('YYYY-MM')
+      if (newMonth !== selectedMonth) setSelectedMonth(newMonth)
+    }
   }
 
   return (
     <main className="mx-4">
-      <HomeCalender
-        value={selectedDate}
-        onChange={(date) => {
-          setSelectedDate(date)
-          updateSelectedDateTasks(new Date(date as Date))
-        }}
-        tileClassName={tileClassName}
-      />
+      {loading ? (
+        <HomeCalender />
+      ) : (
+        <HomeCalender
+          value={selectedDate}
+          onChange={setSelectedDate}
+          tileClassName={tileClassName}
+          onActiveStartDateChange={handleActiveStartDateChange}
+        />
+      )}
 
       <section className="mt-9">
         <div className="flex-between items-end">
@@ -51,10 +59,10 @@ export const Home = () => {
         <div className="flex-column my-4 gap-2">
           {error ? (
             <EmptyMessage>{error?.message}</EmptyMessage>
+          ) : selectedDateTasks.length > 0 ? (
+            selectedDateTasks.map((task, index) => <TodoItem key={index} task={task} />)
           ) : (
-            selectedDateTasks.map((task) => (
-              <TodoItem key={task.id} task={task} onUpdate={handleTaskUpdate} />
-            ))
+            <EmptyMessage>{ERROR_MESSAGE.noData}</EmptyMessage>
           )}
         </div>
       </section>

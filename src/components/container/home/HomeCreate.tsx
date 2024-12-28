@@ -16,7 +16,7 @@ export const HomeCreate = () => {
   const formMethod = useHomeForm()
   const navigate = useNavigate()
   const { handleSubmit, setValue, getValues, watch } = formMethod
-  const { handleCreateTask, error } = useTaskCreate()
+  const { handleCreate, error } = useTaskCreate()
 
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
   const dateValue = watch('date')
@@ -27,10 +27,7 @@ export const HomeCreate = () => {
 
   const handleFormSubmit = async () => {
     const formData = getValues()
-    const newTask = await handleCreateTask(formData)
-    if (newTask) {
-      openModal()
-    }
+    await handleCreate(formData).then(() => openModal())
   }
 
   const handleModalConfirm = () => {
