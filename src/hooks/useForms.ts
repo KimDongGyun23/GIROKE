@@ -58,6 +58,12 @@ export const useProjectForm = () => {
 
 const noteSchema = z.object({
   title: z.string().min(1, { message: '노트 제목을 입력해주세요.' }),
+  tag: z
+    .string()
+    .optional()
+    .refine((val) => val && val.length > 0, {
+      message: '태그를 선택해주세요.',
+    }),
   paragraphs: z.array(
     z.object({
       subTitle: z.string().min(1, { message: '단락 제목을 입력해주세요.' }),
