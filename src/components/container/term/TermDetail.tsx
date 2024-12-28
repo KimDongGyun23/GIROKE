@@ -1,3 +1,4 @@
+import React from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { BottomBookmark } from '@/components/view/BottomBookmark'
@@ -9,7 +10,7 @@ import { SubHeaderWithIcon } from '@/components/view/SubHeader'
 import { Tag } from '@/components/view/Tag'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useToggle } from '@/hooks/useToggle'
-import { useTermBookmark, useTermDelete, useTermDetail } from '@/services/useTermService'
+import { useTermBookmark, useTermDelete, useTermDetail } from '@/services/termService'
 
 export const TermDetail = () => {
   const navigate = useNavigate()
@@ -17,19 +18,21 @@ export const TermDetail = () => {
   const [isKebabOpen, toggleKebab] = useToggle(false)
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
 
-  const { term, setTerm, loading: termLoading, error: termError } = useTermDetail(id)
-  const { isBookmarked, handleBookmarkToggle, error: bookmarkError } = useTermBookmark(id, setTerm)
-  const { handleDelete, error: deleteError } = useTermDelete(id)
+  const { item: term, loading, error: termError } = useTermDetail(id)
+  const { handleDelete, error: deleteError } = useTermDelete()
+  const { handleBookmarkToggle, error: bookmarkError } = useTermBookmark(id)
 
   const error = termError || bookmarkError || deleteError
 
-  const handleEdit = () => {
-    if (id) navigate(`/term/edit/${id}`)
-  }
+  const handleEdit = () => navigate(`/term/edit/${id}`)
 
-  const onBookmarkToggle = () => {
-    if (!term) return
-    handleBookmarkToggle(term.isBookmarked)
+  const handleDeleteConfirm = async () => {
+    if (id) {
+      await handleDelete(id).then(() => {
+        closeModal()
+        navigate('/term', { replace: true })
+      })
+    }
   }
 
   const kebabOptions = [
@@ -37,13 +40,8 @@ export const TermDetail = () => {
     { label: '삭제', onClick: openModal },
   ]
 
-  if (termLoading) {
-    return <Loading />
-  }
-
-  if (termError || bookmarkError || deleteError || !term) {
-    return <ErrorMessage>{error?.message}</ErrorMessage>
-  }
+  if (loading) return <Loading />
+  if (error || !term) return <ErrorMessage>{error?.message}</ErrorMessage>
 
   return (
     <>
@@ -72,8 +70,8 @@ export const TermDetail = () => {
       </main>
 
       <BottomBookmark
-        isActive={isBookmarked ?? term.isBookmarked}
-        onToggleBookmark={onBookmarkToggle}
+        isActive={term.isBookmarked}
+        onToggleBookmark={() => handleBookmarkToggle(term.isBookmarked)}
       />
 
       {isModalOpen && (
@@ -81,7 +79,7 @@ export const TermDetail = () => {
           isOpen={isModalOpen}
           closeModal={closeModal}
           leftButtonOnClick={closeModal}
-          rightButtonOnClick={() => handleDelete(closeModal)}
+          rightButtonOnClick={handleDeleteConfirm}
         />
       )}
     </>

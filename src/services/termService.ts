@@ -21,9 +21,8 @@ export const useTerms = (activeTag: TermTagsType) =>
   )
 
 export const useTermCreate = () =>
-  useItemCreate<TermFormType, TermTagsType>(
-    (userId: string, data: TermFormType, selectedTag: TermTagsType) =>
-      firebaseUtils.createItem(userId, COLLECTION_NAME, { ...data, tag: selectedTag }),
+  useItemCreate<TermFormType>((userId: string, data: TermFormType) =>
+    firebaseUtils.createItem(userId, COLLECTION_NAME, data),
   )
 
 export const useTermDetail = (termId: string | undefined) =>

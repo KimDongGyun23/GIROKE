@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { FormProvider } from 'react-hook-form'
+import { useCallback, useEffect } from 'react'
+import { FormProvider, useFormContext, useWatch } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { ErrorMessage } from '@/components/view/ErrorMessage'
@@ -7,12 +7,30 @@ import { InputGroup } from '@/components/view/inputGroup'
 import { Loading } from '@/components/view/Loading'
 import { ModalEdit } from '@/components/view/modal/Modal'
 import { SubHeaderWithoutIcon } from '@/components/view/SubHeader'
-import { Tag } from '@/components/view/Tag'
+import { TagList } from '@/components/view/TagList'
 import { useBoolean } from '@/hooks/useBoolean'
 import { useTermForm } from '@/hooks/useForms'
-import { useTermData, useTermUpdate } from '@/services/useTermService'
-import type { TermItemType, TermTagsType } from '@/types/term'
+import { useTermDetail, useTermUpdate } from '@/services/termService'
+import type { TermItemType } from '@/types/term'
 import { TERM_TAGS } from '@/utils/constants'
+
+const TagField = () => {
+  const { setValue, control } = useFormContext()
+  const selectedTag = useWatch({ name: 'tag', control })
+
+  return (
+    <InputGroup>
+      <InputGroup.Label section="tag">태그 선택</InputGroup.Label>
+      <TagList
+        tags={TERM_TAGS}
+        activeTag={selectedTag}
+        onTagClick={(tag) => setValue('tag', tag)}
+        isSliced
+        isWrapped
+      />
+    </InputGroup>
+  )
+}
 
 export const TermEdit = () => {
   const navigate = useNavigate()
@@ -21,47 +39,34 @@ export const TermEdit = () => {
   const { handleSubmit, setValue, getValues } = formMethod
 
   const [isModalOpen, openModal, closeModal] = useBoolean(false)
-  const [selectedTag, setSelectedTag] = useState<TermTagsType | null>(null)
 
-  const { termData, loading, error: fetchError } = useTermData(id)
-  const { updateTerm, error: updateError } = useTermUpdate(id)
+  const { item: termData, loading, error: fetchError } = useTermDetail(id)
+  const { updateItem: updateTerm, error: updateError } = useTermUpdate()
 
   useEffect(() => {
     if (termData) {
       Object.entries(termData).forEach(([key, value]) => {
-        setValue(key as keyof Omit<TermItemType, 'id'>, value as string)
+        if (key !== 'id') {
+          setValue(key as keyof Omit<TermItemType, 'id'>, value as string)
+        }
       })
-      setSelectedTag(termData.tag)
     }
   }, [termData, setValue])
 
   const handleFormSubmit = async () => {
-    try {
-      const formData = getValues()
-      await updateTerm(formData)
-      openModal()
-    } catch (error) {
-      console.error('Error updating term:', error)
-    }
+    if (!id) return
+    const formData = getValues()
+    await updateTerm(id, formData).then(() => openModal())
   }
 
-  const handleModalConfirm = () => {
+  const handleModalConfirm = useCallback(() => {
     closeModal()
     navigate(`/term/detail/${id}`, { replace: true })
-  }
+  }, [closeModal, navigate, id])
 
-  const handleTagSelect = (tag: TermTagsType) => {
-    setSelectedTag(tag)
-    setValue('tag', tag)
-  }
-
-  if (loading) {
-    return <Loading />
-  }
-
-  if (fetchError || updateError) {
+  if (loading) return <Loading />
+  if (fetchError || updateError)
     return <ErrorMessage>{(fetchError || updateError)?.message}</ErrorMessage>
-  }
 
   return (
     <>
@@ -78,26 +83,11 @@ export const TermEdit = () => {
               <InputGroup.Label section="term">용어 이름</InputGroup.Label>
               <InputGroup.Input section="term" placeholder="용어 이름을 입력해주세요." />
             </InputGroup>
-
             <InputGroup>
               <InputGroup.Label section="description">상세 설명</InputGroup.Label>
               <InputGroup.TextArea section="description" placeholder="상세 설명을 입력해주세요." />
             </InputGroup>
-
-            <InputGroup>
-              <InputGroup.Label section="tag">태그 선택</InputGroup.Label>
-              <div className="flex flex-wrap gap-2">
-                {TERM_TAGS.slice(1).map((tag: TermTagsType) => (
-                  <Tag
-                    key={tag}
-                    secondary={tag !== selectedTag}
-                    onClick={() => handleTagSelect(tag)}
-                  >
-                    {tag}
-                  </Tag>
-                ))}
-              </div>
-            </InputGroup>
+            <TagField />
           </form>
         </FormProvider>
       </main>

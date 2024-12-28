@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { TermItem } from '@/components/domain/TermItem'
@@ -6,21 +6,20 @@ import { EmptyMessage } from '@/components/view/ErrorMessage'
 import { BackArrowIcon } from '@/components/view/icons/NonActiveIcon'
 import { Loading } from '@/components/view/Loading'
 import { Search } from '@/components/view/Search'
-import { Tag } from '@/components/view/Tag'
-import { useTermSearch } from '@/services/useTermService'
+import { TagList } from '@/components/view/TagList'
+import { useTermSearch } from '@/services/termService'
 import type { TermTagsType } from '@/types/term'
-import { TERM_TAGS } from '@/utils/constants'
+import { ERROR_MESSAGE, TERM_TAGS } from '@/utils/constants'
 
 export const TermSearch = () => {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const searchName = searchParams.get('searchName') || ''
   const [activeTag, setActiveTag] = useState<TermTagsType>(TERM_TAGS[0])
+  const { items: terms, loading, error } = useTermSearch(activeTag, searchName)
 
-  const { terms, loading, error } = useTermSearch(activeTag, searchName)
-
-  const handleBackClick = () => navigate('/term')
-  const handleTagClick = (tag: TermTagsType) => setActiveTag(tag)
+  const handleBackClick = useCallback(() => navigate('/term'), [navigate])
+  const handleTagClick = useCallback((tag: TermTagsType) => setActiveTag(tag), [])
 
   return (
     <main className="flex-column mx-4 h-full pt-5">
@@ -33,19 +32,15 @@ export const TermSearch = () => {
         </div>
       </header>
 
-      <div className="scroll flex w-fit shrink-0 gap-2 overflow-x-scroll py-3">
-        {TERM_TAGS.map((tag) => (
-          <Tag key={tag} secondary={activeTag !== tag} onClick={() => handleTagClick(tag)}>
-            {tag}
-          </Tag>
-        ))}
-      </div>
+      <TagList tags={TERM_TAGS} activeTag={activeTag} onTagClick={handleTagClick} />
 
       <section className="flex-column scroll grow">
         {loading ? (
           <Loading />
         ) : error ? (
           <EmptyMessage>{error?.message}</EmptyMessage>
+        ) : terms.length === 0 ? (
+          <EmptyMessage>{ERROR_MESSAGE.noData}</EmptyMessage>
         ) : (
           terms.map((term) => <TermItem key={term.id} term={term} />)
         )}
