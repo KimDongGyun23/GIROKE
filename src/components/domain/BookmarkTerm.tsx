@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { TermItem } from '@/components/domain/TermItem'
 import { EmptyMessage, ErrorMessage } from '@/components/view/ErrorMessage'

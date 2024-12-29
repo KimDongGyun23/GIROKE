@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 
 import type { LoginFormType } from '@/types/common'
-import type { HomeFormType } from '@/types/home'
+import type { TodoFormType } from '@/types/home'
 import type { NoteFormType } from '@/types/note'
 import type { ProjectFormType } from '@/types/project'
 import type { TermFormType } from '@/types/term'
@@ -103,7 +103,7 @@ const homeSchema = z.object({
 })
 
 export const useHomeForm = () => {
-  const formMethod = useForm<HomeFormType>({
+  const formMethod = useForm<TodoFormType>({
     mode: 'onSubmit',
     reValidateMode: 'onSubmit',
     resolver: zodResolver(homeSchema),
