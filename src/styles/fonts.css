@@ -5,7 +5,7 @@
   @font-face {
     font-family: Paperlogy;
     font-weight: 400;
-    src: url('/src/assets/fonts/PAPERLOGY-4REGULAR.ttf') format('truetype');
+    src: url('/src/assets/fonts/Paperlogy-4Regular.ttf') format('truetype');
     font-style: normal;
     font-display: swap;
   }
@@ -13,7 +13,7 @@
   @font-face {
     font-family: Paperlogy;
     font-weight: 500;
-    src: url('/src/assets/fonts/PAPERLOGY-5MEDIUM.ttf') format('truetype');
+    src: url('/src/assets/fonts/Paperlogy-5Medium.ttf') format('truetype');
     font-style: normal;
     font-display: swap;
   }
@@ -21,7 +21,7 @@
   @font-face {
     font-family: Paperlogy;
     font-weight: 700;
-    src: url('/src/assets/fonts/PAPERLOGY-7BOLD.ttf') format('truetype');
+    src: url('/src/assets/fonts/Paperlogy-7Bold.ttf') format('truetype');
     font-style: normal;
     font-display: swap;
   }
@@ -29,7 +29,7 @@
   @font-face {
     font-family: Jalnan;
     font-weight: 300;
-    src: url('/src/assets/fonts/JALNAN.ttf') format('truetype');
+    src: url('/src/assets/fonts/Jalnan.ttf') format('truetype');
     font-style: normal;
     font-display: swap;
   }
