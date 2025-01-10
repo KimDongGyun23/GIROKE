@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 
+import { LoginBar } from './components/view/LoginBar'
 import { SideNavbar } from './components/view/SideNavbar'
 
 const App = () => {
@@ -14,7 +15,7 @@ const App = () => {
       <div className="grid grow grid-cols-6 gap-8 p-8">
         <SideNavbar />
         <p className="col-span-4 rounded-xl bg-white p-4 drop-shadow-sm">d</p>
-        <p className="col-span-1 rounded-xl bg-white p-4 drop-shadow-sm">d</p>
+        <LoginBar />
       </div>
     </div>
   )

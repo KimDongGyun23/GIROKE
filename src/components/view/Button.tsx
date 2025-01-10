@@ -9,6 +9,7 @@ const sizeMap = {
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   size: keyof typeof sizeMap
   secondary?: boolean
+  className?: string
 }
 
 export const Button = ({
@@ -16,12 +17,13 @@ export const Button = ({
   type = 'button',
   disabled = false,
   secondary = false,
+  className = '',
   children,
   ...rest
 }: PropsWithChildren<ButtonProps>) => {
   const bgStyle =
-    disabled || secondary ? 'bg-black-100 text-black-500' : 'bg-black-600 text-black-100'
-  const buttonStyle = `${sizeMap[size]} ${bgStyle}`
+    disabled || secondary ? 'bg-black-200 text-black-500' : 'bg-black-600 text-black-100'
+  const buttonStyle = `${sizeMap[size]} ${bgStyle} ${className}`
 
   return (
     <button
