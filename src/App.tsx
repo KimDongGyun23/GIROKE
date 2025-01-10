@@ -1,36 +1,26 @@
-import { useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
-import { BottomNav } from './components/view/BottomNav'
-import {
-  NavBookmarkIcon,
-  NavHomeIcon,
-  NavNoteIcon,
-  NavProjectIcon,
-  NavTermIcon,
-} from './components/view/icons/NavIcon'
-import { RouterComponent } from './components/view/Router'
-import type { PageNavItemsType } from './types/common'
-
-const pageNavItems: PageNavItemsType[] = [
-  { name: '용어정리', Component: NavTermIcon, url: '/term' },
-  { name: '프로젝트', Component: NavProjectIcon, url: '/project' },
-  { name: '홈', Component: NavHomeIcon, url: '/home' },
-  { name: '노트', Component: NavNoteIcon, url: '/note' },
-  { name: '북마크', Component: NavBookmarkIcon, url: '/bookmark' },
-]
+const NAV_ITEMS = ['홈', '기록', '해야할 일', '노트']
 
 const App = () => {
-  const { pathname } = useLocation()
-  const matchedNavUrl = pageNavItems.find((nav) => nav.url === pathname)
-
   return (
-    <div className="flex-center">
-      <div className="scroll flex-column relative h-svh w-full min-w-[320px] max-w-[450px] border-x">
-        {matchedNavUrl && <h1 className="px-4 py-6 font-jalnan font-bold text-green-6">기로케</h1>}
-        <div className="scroll flex-column grow">
-          <RouterComponent />
+    <div className="flex-column min-h-svh bg-black-100">
+      <header>
+        <h1 className="bg-white px-8 py-8 font-jalnan text-4xl text-black-600">
+          <Link to={'/'}>기로케</Link>
+        </h1>
+      </header>
+
+      <div className="grid grow grid-cols-6 gap-8 p-8">
+        <div className="flex-column col-span-1 h-full justify-center gap-4 rounded-xl bg-black-600 p-4 drop-shadow-sm">
+          {NAV_ITEMS.map((item) => (
+            <div key={item} className="rounded-xl bg-black-100 px-4 py-3 text-xl text-black-600">
+              {item}
+            </div>
+          ))}
         </div>
-        {matchedNavUrl && <BottomNav navItems={pageNavItems} currentUrl={matchedNavUrl.url} />}
+        <p className="col-span-4 rounded-xl bg-white p-4 drop-shadow-sm">d</p>
+        <p className="col-span-1 rounded-xl bg-white p-4 drop-shadow-sm">d</p>
       </div>
     </div>
   )

@@ -11,78 +11,15 @@
   }
 
   @font-face {
-    font-family: Paperlogy;
-    font-weight: 500;
-    src: url('/src/assets/fonts/Paperlogy-5Medium.ttf') format('truetype');
-    font-style: normal;
-    font-display: swap;
-  }
-
-  @font-face {
-    font-family: Paperlogy;
-    font-weight: 700;
-    src: url('/src/assets/fonts/Paperlogy-7Bold.ttf') format('truetype');
-    font-style: normal;
-    font-display: swap;
-  }
-
-  @font-face {
-    font-family: Jalnan;
+    font-family: Moneygraphy;
     font-weight: 300;
-    src: url('/src/assets/fonts/Jalnan.ttf') format('truetype');
+    src: url('/src/assets/fonts/Moneygraphy-Rounded.ttf') format('truetype');
     font-style: normal;
     font-display: swap;
   }
 
   html {
-    font-family: 'Paperlogy', sans-serif;
+    font-family: 'Moneygraphy', sans-serif;
     font-optical-sizing: auto;
-  }
-
-  h1 {
-    font-size: 36px;
-    line-height: 44px;
-    letter-spacing: -0.72px;
-  }
-  h2 {
-    font-size: 32px;
-    line-height: 40px;
-    letter-spacing: -0.64px;
-  }
-  h3 {
-    font-size: 28px;
-    line-height: 36px;
-    letter-spacing: -0.56px;
-  }
-  h4 {
-    font-size: 24px;
-    line-height: 32px;
-  }
-  h5 {
-    font-size: 20px;
-    line-height: 28px;
-  }
-  h6 {
-    font-size: 18px;
-    line-height: 24px;
-  }
-}
-
-@layer utilities {
-  .p-large {
-    font-size: 18px;
-    line-height: 28px;
-  }
-  .p-medium {
-    font-size: 16px;
-    line-height: 24px;
-  }
-  .p-small {
-    font-size: 14px;
-    line-height: 20px;
-  }
-  .p-xsmall {
-    font-size: 12px;
-    line-height: 16px;
   }
 }
