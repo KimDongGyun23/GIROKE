@@ -6,7 +6,7 @@
   }
 
   .hover-scale {
-    @apply transition-all hover:scale-[1.02];
+    @apply transition-all hover:scale-105;
   }
 
   .webkit-overflow-scrolling-touch {
