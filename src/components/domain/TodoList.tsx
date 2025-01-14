@@ -1,4 +1,4 @@
-import { AdditionIcon, TrashIcon } from './icons/NonActiveIcon'
+import { AdditionIcon, TrashIcon } from '../view/icons/NonActiveIcon'
 
 const TodoItem = () => {
   return (

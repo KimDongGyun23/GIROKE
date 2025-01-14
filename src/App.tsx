@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 
 import { LoginBar } from './components/view/LoginBar'
+import { RouterComponent } from './components/view/Router'
 import { SideNavbar } from './components/view/SideNavbar'
-import { TodoList } from './components/view/TodoList'
 
 const App = () => {
   return (
@@ -15,11 +15,7 @@ const App = () => {
 
       <div className="grid grow grid-cols-6 gap-8 overflow-hidden p-8">
         <SideNavbar />
-        <div className="col-span-4 flex gap-2 overflow-hidden rounded-xl bg-white p-4 drop-shadow-sm">
-          {['해야할 일', '진행 중', '완료'].map((label) => (
-            <TodoList key={label} label={label} />
-          ))}
-        </div>
+        <RouterComponent />
         <LoginBar />
       </div>
     </div>
