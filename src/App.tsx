@@ -15,7 +15,9 @@ const App = () => {
 
       <div className="grid grow grid-cols-6 gap-8 overflow-hidden p-8">
         <SideNavbar />
-        <RouterComponent />
+        <div className="col-span-4 flex gap-2 overflow-hidden rounded-xl bg-white p-4 drop-shadow-sm">
+          <RouterComponent />
+        </div>
         <LoginBar />
       </div>
     </div>
