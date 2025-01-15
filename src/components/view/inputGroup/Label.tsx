@@ -1,37 +1,32 @@
-import type { PropsWithChildren } from 'react'
+import { useContext } from 'react'
 import { useFormContext } from 'react-hook-form'
 
+import { InputGroupContext } from '.'
+
 type LabelProps = {
-  section: string
-  customSuccessMessage?: string | null
-  customErrorMessage?: string | null
+  label: string
+  successMessage?: string | null
+  errorMessage?: string | null
 }
 
-export const Label = ({
-  section,
-  customSuccessMessage,
-  customErrorMessage,
-  children,
-}: PropsWithChildren<LabelProps>) => {
+export const Label = ({ successMessage, errorMessage, label }: LabelProps) => {
   const {
     formState: { errors },
   } = useFormContext()
+  const section = useContext(InputGroupContext)
+  const currentErrorMessage = errors[section]?.message?.toString()
 
   return (
     <div className="flex-align gap-3">
-      <p className="p-large font-medium text-grey-7">{children}</p>
-      {errors && errors[section] && errors[section].message ? (
-        <p className="p-xsmall text-error">* {errors[section].message.toString()}</p>
+      <p className="p-600 text-black-600">{label}</p>
+      {currentErrorMessage ? (
+        <p className="p-900 text-error">* {currentErrorMessage}</p>
       ) : (
         <>
-          {customSuccessMessage && <p className="p-xsmall text-green">* {customSuccessMessage}</p>}
-          {customErrorMessage && <p className="p-xsmall text-red-2">* {customErrorMessage}</p>}
+          {successMessage && <p className="p-900 text-success">* {successMessage}</p>}
+          {errorMessage && <p className="p-900 text-error">* {errorMessage}</p>}
         </>
       )}
     </div>
   )
-}
-
-export const LabelWithoutForm = ({ children }: PropsWithChildren) => {
-  return <p className="p-large font-medium text-grey-7">{children}</p>
 }

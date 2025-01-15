@@ -2,7 +2,7 @@ import { Button } from './Button'
 
 export const LoginBar = () => {
   return (
-    <div className="col-span-1 h-fit rounded-xl bg-white p-4 drop-shadow-sm">
+    <div className="h-fit rounded-xl bg-white p-4 drop-shadow-sm">
       <h3 className="mb-5 text-center text-lg">이용하기</h3>
       <div className="flex-column gap-2">
         <Button size="md" className="hover-scale w-full">
